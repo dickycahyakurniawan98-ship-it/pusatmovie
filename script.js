@@ -7,11 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const videoModal = document.getElementById('video-modal');
     const closeBtn = document.querySelector('.close-btn');
     const videoPlayer = document.getElementById('video-player');
-    const heroSlider = document.getElementById('hero-slider');
-    const sliderWrapper = heroSlider.querySelector('.slider-wrapper');
-    const sliderPrevBtn = heroSlider.querySelector('#slider-prev');
-    const sliderNextBtn = heroSlider.querySelector('#slider-next');
-    const sliderDotsContainer = heroSlider.querySelector('#slider-dots');
     const homeLink = document.getElementById('home-link');
     const yearDropdownBtn = document.getElementById('year-dropdown-btn');
     const yearDropdownMenu = document.getElementById('year-dropdown-menu');
@@ -37,8 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInputMobile = document.getElementById('search-input-mobile');
     const searchInputDesktop = document.getElementById('search-input-desktop');
 
-    let currentSlide = 0;
-    let autoSlideInterval;
 
     // --- FUNGSI BANTUAN ---
     
@@ -73,69 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
             movieCard.appendChild(ratingSpan);
             movieListContainer.appendChild(movieCard);
         });
-    }
-
-    // Fungsi untuk merender slider hero
-    function renderHeroSlider() {
-        sliderWrapper.innerHTML = '';
-        sliderDotsContainer.innerHTML = '';
-        heroSlides.forEach((slide, index) => {
-            const slideElement = document.createElement('div');
-            slideElement.classList.add('w-full', 'h-full', 'flex-shrink-0', 'relative', 'bg-cover', 'bg-center', 'text-white', 'flex', 'items-end', 'p-8', 'md:p-12', 'group');
-            slideElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('${slide.poster}')`;
-    
-            slideElement.innerHTML = `
-                <div class="z-10">
-                    <h2 class="text-3xl md:text-5xl font-bold mb-2">${slide.title}</h2>
-                    <p class="text-sm md:text-base max-w-xl mb-4">${slide.description}</p>
-                    <button class="play-now-btn bg-orange-500 text-white font-bold py-2 px-4 rounded-full hover:bg-orange-600 transition-colors">
-                        <i class="fas fa-play mr-2"></i> Play Now
-                    </button>
-                </div>
-            `;
-            slideElement.querySelector('.play-now-btn').addEventListener('click', () => {
-                showMovieDetail(slide.title);
-            });
-    
-            sliderWrapper.appendChild(slideElement);
-    
-            const dot = document.createElement('div');
-            dot.classList.add('slider-dot');
-            if (index === 0) dot.classList.add('active');
-            dot.addEventListener('click', () => {
-                goToSlide(index);
-                resetAutoSlide();
-            });
-            sliderDotsContainer.appendChild(dot);
-        });
-    }
-
-    // Fungsi untuk menggeser slider
-    function goToSlide(index) {
-        currentSlide = index;
-        const offset = -currentSlide * 100;
-        sliderWrapper.style.transform = `translateX(${offset}%)`;
-        
-        document.querySelectorAll('.slider-dot').forEach((dot, dotIndex) => {
-            if (dotIndex === index) {
-                dot.classList.add('active');
-            } else {
-                dot.classList.remove('active');
-            }
-        });
-    }
-
-    // Fungsi untuk mengelola perpindahan slide otomatis
-    function startAutoSlide() {
-        autoSlideInterval = setInterval(() => {
-            currentSlide = (currentSlide + 1) % heroSlides.length;
-            goToSlide(currentSlide);
-        }, 5000);
-    }
-
-    function resetAutoSlide() {
-        clearInterval(autoSlideInterval);
-        startAutoSlide();
     }
     
     // Fungsi untuk merender tombol episode
@@ -249,27 +179,12 @@ document.addEventListener('DOMContentLoaded', () => {
             movieDetailPage.classList.add('hidden');
             sectionTitle.textContent = 'Semua Film';
             renderMovies(allMovies);
-            renderHeroSlider(); // Re-render the slider
-            startAutoSlide(); // Restart the auto-slide
     });
     
     backToHomeBtn.addEventListener('click', (e) => {
         e.preventDefault();
         mainContent.classList.remove('hidden');
         movieDetailPage.classList.add('hidden');
-    });
-
-    // Slider controls
-    sliderNextBtn.addEventListener('click', () => {
-        currentSlide = (currentSlide + 1) % heroSlides.length;
-        goToSlide(currentSlide);
-        resetAutoSlide();
-    });
-
-    sliderPrevBtn.addEventListener('click', () => {
-        currentSlide = (currentSlide - 1 + heroSlides.length) % heroSlides.length;
-        goToSlide(currentSlide);
-        resetAutoSlide();
     });
 
     // Mobile menu
@@ -331,8 +246,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         renderMovies(allMovies);
-        renderHeroSlider();
-        startAutoSlide();
     }
     
     initialize();
