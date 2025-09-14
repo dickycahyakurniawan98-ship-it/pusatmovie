@@ -1,231 +1,333 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Data untuk slider (diambil dari movies.js)
-    const heroSlides = allMovies.slice(-3).map(movie => ({
-        title: movie.title,
-        subtitle: `Tahun: ${movie.year} | ${movie.genre}`,
-        background: movie.poster,
-        videoUrl: movie.videoUrl
-    }));
-
-    const mainPage = document.getElementById('main-page');
     const mainContent = document.getElementById('main-content');
-    const detailPage = document.getElementById('detail-page');
-    const backBtn = document.getElementById('back-btn');
+    const movieDetailPage = document.getElementById('movie-detail-page');
+    const backToHomeBtn = document.getElementById('back-to-home');
+    const sectionTitle = document.getElementById('section-title');
+    const movieListContainer = document.getElementById('movie-list-container');
+    const videoModal = document.getElementById('video-modal');
+    const closeBtn = document.querySelector('.close-btn');
+    const videoPlayer = document.getElementById('video-player');
+    const heroSlider = document.getElementById('hero-slider');
+    const sliderWrapper = heroSlider.querySelector('.slider-wrapper');
+    const sliderPrevBtn = heroSlider.querySelector('#slider-prev');
+    const sliderNextBtn = heroSlider.querySelector('#slider-next');
+    const sliderDotsContainer = heroSlider.querySelector('#slider-dots');
+    const homeLink = document.getElementById('home-link');
+    const yearDropdownBtn = document.getElementById('year-dropdown-btn');
+    const yearDropdownMenu = document.getElementById('year-dropdown-menu');
+
+    // Detail Page Elements
     const detailPoster = document.getElementById('detail-poster');
     const detailTitle = document.getElementById('detail-title');
+    const detailDescription = document.getElementById('detail-description');
     const detailVideoPlayer = document.getElementById('detail-video-player');
-    const sectionTitle = document.getElementById('section-title');
-    const yearToggleBtn = document.getElementById('year-toggle');
-    const yearDropdown = document.getElementById('year-dropdown');
+    const downloadBtn = document.getElementById('download-btn');
+    const detailLabelContainer = document.getElementById('detail-label-container');
+    const detailRatingContainer = document.getElementById('detail-rating-container');
+    const episodeListContainer = document.getElementById('episode-list-container');
+    
+    // Mobile menu elements
+    const menuBtn = document.getElementById('menu-btn');
+    const mainNav = document.getElementById('main-nav');
+    
+    // Mobile search elements
+    const searchMobileBtn = document.getElementById('search-mobile-btn');
+    const searchModal = document.getElementById('search-modal');
+    const closeSearchModalBtn = document.getElementById('close-search-modal');
+    const searchInputMobile = document.getElementById('search-input-mobile');
+    const searchInputDesktop = document.getElementById('search-input-desktop');
 
-    // Kontrol untuk slider
-    const sliderWrapper = document.getElementById('slider-wrapper');
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-    const sliderDotsContainer = document.getElementById('slider-dots');
     let currentSlide = 0;
-    let slideInterval;
+    let autoSlideInterval;
 
-    // Fungsi untuk merender slider
-    function renderHeroSlides() {
+    // --- FUNGSI BANTUAN ---
+    
+    // Fungsi untuk merender daftar film
+    function renderMovies(moviesToRender) {
+        movieListContainer.innerHTML = '';
+        moviesToRender.forEach(movie => {
+            const movieCard = document.createElement('div');
+            movieCard.classList.add('movie-card', 'rounded-lg', 'overflow-hidden', 'shadow-lg', 'cursor-pointer', 'transform', 'hover:scale-105', 'transition-transform', 'duration-300');
+            movieCard.dataset.title = movie.title;
+    
+            const posterImg = document.createElement('img');
+            posterImg.src = movie.poster;
+            posterImg.alt = movie.title;
+            posterImg.classList.add('w-full', 'h-auto');
+    
+            const labelSpan = document.createElement('span');
+            labelSpan.classList.add('label');
+            labelSpan.textContent = movie.label;
+    
+            const ratingSpan = document.createElement('span');
+            ratingSpan.classList.add('rating');
+            ratingSpan.textContent = movie.rating;
+    
+            movieCard.appendChild(posterImg);
+            movieCard.appendChild(labelSpan);
+            movieCard.appendChild(ratingSpan);
+            movieListContainer.appendChild(movieCard);
+        });
+    }
+
+    // Fungsi untuk merender slider hero
+    function renderHeroSlider() {
         sliderWrapper.innerHTML = '';
         sliderDotsContainer.innerHTML = '';
         heroSlides.forEach((slide, index) => {
             const slideElement = document.createElement('div');
-            slideElement.classList.add('slider-slide');
-            slideElement.style.backgroundImage = `url('${slide.background}')`;
+            slideElement.classList.add('w-full', 'h-full', 'flex-shrink-0', 'relative', 'bg-cover', 'bg-center', 'text-white', 'flex', 'items-end', 'p-8', 'md:p-12', 'group');
+            slideElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('${slide.poster}')`;
+    
             slideElement.innerHTML = `
-                <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent"></div>
-                <div class="absolute bottom-10 left-10 p-4">
-                    <h2 class="text-xl md:text-3xl font-bold mb-2">${slide.title}</h2>
-                    <p class="text-sm md:text-base text-gray-300">${slide.subtitle}</p>
-                    <a href="#" data-video-url="${slide.videoUrl}" class="play-btn mt-4 inline-block bg-orange-500 hover:bg-orange-600 text-gray-900 font-bold py-2 px-6 rounded-full transition-colors">Play Now</a>
+                <div class="z-10">
+                    <h2 class="text-3xl md:text-5xl font-bold mb-2">${slide.title}</h2>
+                    <p class="text-sm md:text-base max-w-xl mb-4">${slide.description}</p>
+                    <button class="play-now-btn bg-orange-500 text-white font-bold py-2 px-4 rounded-full hover:bg-orange-600 transition-colors">
+                        <i class="fas fa-play mr-2"></i> Play Now
+                    </button>
                 </div>
             `;
+            slideElement.querySelector('.play-now-btn').addEventListener('click', () => {
+                showMovieDetail(slide.title);
+            });
+    
             sliderWrapper.appendChild(slideElement);
-
-            const dot = document.createElement('span');
+    
+            const dot = document.createElement('div');
             dot.classList.add('slider-dot');
-            dot.addEventListener('click', () => showSlide(index));
+            if (index === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => {
+                goToSlide(index);
+                resetAutoSlide();
+            });
             sliderDotsContainer.appendChild(dot);
         });
-        showSlide(currentSlide);
-        startAutoSlide();
     }
 
-    // Fungsi untuk menampilkan slide tertentu
-    function showSlide(index) {
+    // Fungsi untuk menggeser slider
+    function goToSlide(index) {
         currentSlide = index;
-        const slides = document.querySelectorAll('.slider-slide');
-        const dots = document.querySelectorAll('.slider-dot');
         const offset = -currentSlide * 100;
         sliderWrapper.style.transform = `translateX(${offset}%)`;
-
-        dots.forEach((dot, i) => {
-            dot.classList.toggle('active', i === index);
+        
+        document.querySelectorAll('.slider-dot').forEach((dot, dotIndex) => {
+            if (dotIndex === index) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
         });
     }
 
-    // Fungsi untuk slide berikutnya
-    function nextSlide() {
-        currentSlide = (currentSlide + 1) % heroSlides.length;
-        showSlide(currentSlide);
-    }
-
-    // Fungsi untuk slide sebelumnya
-    function prevSlide() {
-        currentSlide = (currentSlide - 1 + heroSlides.length) % heroSlides.length;
-        showSlide(currentSlide);
-    }
-
-    // Fungsi untuk memulai geser otomatis
+    // Fungsi untuk mengelola perpindahan slide otomatis
     function startAutoSlide() {
-        clearInterval(slideInterval);
-        slideInterval = setInterval(nextSlide, 5000);
+        autoSlideInterval = setInterval(() => {
+            currentSlide = (currentSlide + 1) % heroSlides.length;
+            goToSlide(currentSlide);
+        }, 5000);
     }
 
-    // Event listener untuk tombol navigasi slider
-    nextBtn.addEventListener('click', () => {
-        nextSlide();
+    function resetAutoSlide() {
+        clearInterval(autoSlideInterval);
         startAutoSlide();
-    });
+    }
+    
+    // Fungsi untuk merender tombol episode
+    function renderEpisodes(episodes) {
+        episodeListContainer.innerHTML = `
+            <h3 class="text-xl font-bold mb-4">Pilih Episode</h3>
+            <div id="episode-buttons" class="flex flex-wrap gap-2"></div>
+        `;
+        const episodeButtons = document.getElementById('episode-buttons');
+        episodes.forEach(episode => {
+            const button = document.createElement('button');
+            button.textContent = `Episode ${episode.episodeNumber}`;
+            button.classList.add('bg-gray-700', 'text-white', 'py-1', 'px-3', 'rounded-md', 'hover:bg-orange-500', 'transition-colors');
+            button.addEventListener('click', () => {
+                detailVideoPlayer.src = episode.videoUrl;
+            });
+            episodeButtons.appendChild(button);
+        });
+    }
 
-    prevBtn.addEventListener('click', () => {
-        prevSlide();
-        startAutoSlide();
-    });
+    // --- FUNGSI UTAMA ---
 
-    // Delegasi event untuk tombol "Play Now" pada slider
-    document.addEventListener('click', (event) => {
-        if (event.target.classList.contains('play-btn')) {
-            event.preventDefault();
-            const videoUrl = event.target.getAttribute('data-video-url');
-            if (videoUrl) {
-                showMovieDetail(heroSlides[currentSlide]);
+    // Fungsi untuk menampilkan halaman detail film
+    function showMovieDetail(movieTitle) {
+        const movie = allMovies.find(m => m.title === movieTitle);
+        if (movie) {
+            mainContent.classList.add('hidden');
+            movieDetailPage.classList.remove('hidden');
+            
+            detailTitle.textContent = movie.title;
+            detailPoster.src = movie.poster;
+            detailDescription.textContent = movie.description || "Deskripsi tidak tersedia.";
+            detailVideoPlayer.src = movie.videoUrl || (movie.episodes ? movie.episodes[0].videoUrl : '');
+            
+            if (movie.downloadUrl) {
+                downloadBtn.classList.remove('hidden');
+                downloadBtn.href = movie.downloadUrl;
+            } else {
+                downloadBtn.classList.add('hidden');
             }
+            
+            // Menampilkan label dan rating
+            detailLabelContainer.innerHTML = `<span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">${movie.label}</span>`;
+            detailRatingContainer.innerHTML = `<span class="bg-gray-700 text-white text-xs font-bold px-2 py-1 rounded-full">${movie.rating}</span>`;
+            
+            // Menampilkan daftar episode jika ada
+            if (movie.episodes) {
+                episodeListContainer.classList.remove('hidden');
+                renderEpisodes(movie.episodes);
+            } else {
+                episodeListContainer.classList.add('hidden');
+            }
+        }
+    }
+
+    // --- EVENT LISTENERS ---
+
+    // Navigasi
+    document.querySelectorAll('nav a').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const filter = e.target.dataset.filter;
+            if (filter) {
+                let filteredMovies = [];
+                if (filter === 'All') {
+                    filteredMovies = allMovies;
+                    sectionTitle.textContent = 'Semua Film';
+                } else if (filter === 'Movie' || filter === 'Donghua') {
+                    filteredMovies = allMovies.filter(movie => movie.genre === filter);
+                    sectionTitle.textContent = `Film ${filter}`;
+                }
+                mainContent.classList.remove('hidden');
+                movieDetailPage.classList.add('hidden');
+                renderMovies(filteredMovies);
+            }
+        });
+    });
+
+    // Tombol tahun dropdown
+    yearDropdownBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        yearDropdownMenu.classList.toggle('hidden');
+    });
+
+    yearDropdownMenu.addEventListener('click', (e) => {
+        if (e.target.tagName === 'A') {
+            e.preventDefault();
+            const selectedYear = e.target.dataset.year;
+            const filteredMovies = allMovies.filter(movie => movie.year.toString() === selectedYear);
+            sectionTitle.textContent = `Tahun ${selectedYear}`;
+            renderMovies(filteredMovies);
+            yearDropdownMenu.classList.add('hidden');
+            mainContent.classList.remove('hidden');
+            movieDetailPage.classList.add('hidden');
         }
     });
 
-    // Fungsi untuk merender daftar film ke container tertentu
-    function renderMovies(moviesArray) {
-        const container = document.getElementById('movie-list-container');
-        container.innerHTML = '';
-        moviesArray.forEach(movie => {
-            const movieCard = document.createElement('div');
-            movieCard.classList.add('movie-card', 'bg-gray-800', 'rounded-lg', 'overflow-hidden', 'cursor-pointer', 'transform', 'transition-transform', 'duration-200', 'hover:scale-105', 'shadow-md');
-
-            const posterImg = document.createElement('img');
-            posterImg.src = movie.poster;
-            posterImg.alt = movie.title;
-            posterImg.classList.add('w-full', 'h-auto', 'object-cover', 'rounded-t-lg');
-            
-            const titleElement = document.createElement('h3');
-            titleElement.textContent = movie.title;
-            titleElement.classList.add('p-3', 'text-sm', 'md:text-base', 'text-center', 'truncate');
-            
-            if (movie.label) {
-                const genreLabel = document.createElement('span');
-                genreLabel.classList.add('label-genre');
-                genreLabel.textContent = movie.label;
-                movieCard.appendChild(genreLabel);
-            }
-
-            if (movie.rating) {
-                const ratingLabel = document.createElement('span');
-                ratingLabel.classList.add('rating-label');
-                ratingLabel.textContent = movie.rating.toFixed(1);
-                movieCard.appendChild(ratingLabel);
-            }
-
-            movieCard.addEventListener('click', () => {
-                showMovieDetail(movie);
-            });
-
-            movieCard.appendChild(posterImg);
-            movieCard.appendChild(titleElement);
-            container.appendChild(movieCard);
-        });
-    }
-
-    // Fungsi untuk menampilkan tampilan detail film
-    function showMovieDetail(movie) {
-        mainPage.classList.add('hidden');
-        mainContent.classList.add('hidden');
-        detailPage.classList.remove('hidden');
-
-        detailPoster.src = movie.poster;
-        detailTitle.textContent = movie.title;
-        detailVideoPlayer.src = movie.videoUrl;
-    }
-
-    // Fungsi untuk kembali ke halaman utama
-    function backToMainPage() {
-        mainPage.classList.remove('hidden');
-        mainContent.classList.remove('hidden');
-        detailPage.classList.add('hidden');
-        detailVideoPlayer.src = '';
-        renderMovies(allMovies);
-        sectionTitle.textContent = "Semua Film";
-    }
-
-    backBtn.addEventListener('click', backToMainPage);
-
-    // Fungsionalitas Year dropdown
-    const uniqueYears = [];
-    for (let year = 2025; year >= 2001; year--) {
-        uniqueYears.push(year);
-    }
-
-    yearToggleBtn.addEventListener('click', (event) => {
-        event.preventDefault();
-        yearDropdown.classList.toggle('hidden');
+    // Menangani klik poster untuk membuka halaman detail
+    movieListContainer.addEventListener('click', (e) => {
+        const movieCard = e.target.closest('.movie-card');
+        if (movieCard) {
+            const movieTitle = movieCard.dataset.title;
+            showMovieDetail(movieTitle);
+        }
     });
     
-    function renderYearDropdown() {
-        yearDropdown.innerHTML = '';
-        uniqueYears.forEach(year => {
-            const yearLink = document.createElement('a');
-            yearLink.href = '#';
-            yearLink.textContent = year;
-            yearLink.classList.add('block', 'px-4', 'py-2', 'hover:bg-gray-600', 'transition-colors');
-            yearLink.addEventListener('click', (event) => {
-                event.preventDefault();
-                const filteredMovies = allMovies.filter(movie => movie.year === year);
-                renderMovies(filteredMovies);
-                sectionTitle.textContent = `Tahun ${year}`;
-                mainPage.classList.remove('hidden');
-                mainContent.classList.add('hidden');
-                detailPage.classList.add('hidden');
-                yearDropdown.classList.add('hidden');
-            });
-            yearDropdown.appendChild(yearLink);
-        });
-    }
-    renderYearDropdown();
-
-    // Menjadikan tombol navigasi berfungsi
-    const navLinks = document.querySelectorAll('#nav-links a');
-    navLinks.forEach(link => {
-        link.addEventListener('click', (event) => {
-            event.preventDefault();
-            
-            const filterType = event.target.getAttribute('data-filter-type');
-            const filterValue = event.target.getAttribute('data-filter-value');
-            
-            if (filterType === 'all') {
-                backToMainPage();
-            } else if (filterType === 'genre') {
-                const filteredMovies = allMovies.filter(movie => movie.genre === filterValue);
-                renderMovies(filteredMovies);
-                sectionTitle.textContent = `${filterValue} List`;
-                mainPage.classList.remove('hidden');
-                mainContent.classList.add('hidden');
-                detailPage.classList.add('hidden');
-            }
-        });
+    // Kembali ke halaman utama
+    homeLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        mainContent.classList.remove('hidden');
+        movieDetailPage.classList.add('hidden');
+        sectionTitle.textContent = 'Semua Film';
+        renderMovies(allMovies);
+    });
+    
+    backToHomeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        mainContent.classList.remove('hidden');
+        movieDetailPage.classList.add('hidden');
     });
 
-    // Panggil fungsi untuk merender film di setiap bagian
-    renderHeroSlides();
-    renderMovies(allMovies);
+    // Slider controls
+    sliderNextBtn.addEventListener('click', () => {
+        currentSlide = (currentSlide + 1) % heroSlides.length;
+        goToSlide(currentSlide);
+        resetAutoSlide();
+    });
+
+    sliderPrevBtn.addEventListener('click', () => {
+        currentSlide = (currentSlide - 1 + heroSlides.length) % heroSlides.length;
+        goToSlide(currentSlide);
+        resetAutoSlide();
+    });
+
+    // Mobile menu
+    menuBtn.addEventListener('click', () => {
+        mainNav.classList.toggle('hidden');
+    });
+
+    // Mobile search modal
+    searchMobileBtn.addEventListener('click', () => {
+        searchModal.classList.remove('hidden');
+        searchInputMobile.focus();
+    });
+
+    closeSearchModalBtn.addEventListener('click', () => {
+        searchModal.classList.add('hidden');
+        searchInputMobile.value = '';
+    });
+    
+    // Filter dan search
+    function filterMovies(query) {
+        const filteredMovies = allMovies.filter(movie => 
+            movie.title.toLowerCase().includes(query.toLowerCase())
+        );
+        sectionTitle.textContent = `Hasil Pencarian untuk "${query}"`;
+        renderMovies(filteredMovies);
+    }
+    
+    searchInputMobile.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            searchModal.classList.add('hidden');
+            mainContent.classList.remove('hidden');
+            movieDetailPage.classList.add('hidden');
+            filterMovies(searchInputMobile.value);
+        }
+    });
+    
+    searchInputDesktop.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            mainContent.classList.remove('hidden');
+            movieDetailPage.classList.add('hidden');
+            filterMovies(searchInputDesktop.value);
+        }
+    });
+
+    // Inisialisasi
+    function initialize() {
+        // Render tahun untuk dropdown
+        const years = new Set();
+        for (let i = 2025; i >= 2001; i--) {
+            years.add(i);
+        }
+        years.forEach(year => {
+            const link = document.createElement('a');
+            link.href = '#';
+            link.textContent = year;
+            link.dataset.year = year;
+            link.classList.add('block', 'px-4', 'py-2', 'hover:bg-gray-700');
+            yearDropdownMenu.appendChild(link);
+        });
+
+        renderMovies(allMovies);
+        renderHeroSlider();
+        startAutoSlide();
+    }
+    
+    initialize();
+
 });
