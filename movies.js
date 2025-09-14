@@ -134,5 +134,15 @@ const allMovies = [
         label: "Movie",
         rating: 4.2
     },
+        {
+        title: "Asthram (2025)",
+        poster: "https://i.imgur.com/u8o77dr.jpeg",
+        videoUrl: "https://playdulu.xyz/embed/1gqpCNsbno1AgGb",
+        genre: "Movie,Drama",
+        year: 2025,
+        label: "Movie",
+        rating: 5.9
+    },
 ];
+
 
