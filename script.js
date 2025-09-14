@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (filter) {
                 let filteredMovies = [];
                 if (filter === 'All') {
-                    filteredMovies = allMovies;
+                    filteredMovies = [...allMovies].reverse();
                     sectionTitle.textContent = 'Semua Film';
                 } else if (filter === 'Movie' || filter === 'Donghua') {
                     filteredMovies = allMovies.filter(movie => movie.genre === filter);
@@ -178,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mainContent.classList.remove('hidden');
             movieDetailPage.classList.add('hidden');
             sectionTitle.textContent = 'Semua Film';
-            renderMovies(allMovies);
+            renderMovies([...allMovies].reverse());
     });
     
     backToHomeBtn.addEventListener('click', (e) => {
@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
             yearDropdownMenu.appendChild(link);
         });
 
-        renderMovies(allMovies);
+        renderMovies([...allMovies].reverse());
     }
     
     initialize();
