@@ -143,6 +143,43 @@ const allMovies = [
         label: "Movie",
         rating: 5.9
     },
+     {
+        title: "Demon Slayer: Kimetsu no Yaiba Infinity Castle (2025)",
+        poster: "https://i.imgur.com/KqQ9fSD.jpeg",
+        videoUrl: "https://playdulu.xyz/embed/UckWScw1Dd8QSUm",
+        genre: "Movie,Action, Animation, Fantasy, Thriller",
+        year: 2025,
+        label: "Movie",
+        rating: 8.7
+    },
+     {
+        title: "Courage and Medical Heart (2025)",
+        poster: "https://i.imgur.com/0DydJ4t.png",
+        videoUrl: "https://playdulu.xyz/embed/VJhImNtcJELk0CK",
+        genre: "Movie,Action",
+        year: 2025,
+        label: "Movie",
+        rating: 5.6
+    },
+     {
+        title: "Elio (2025)",
+        poster: "https://i.imgur.com/hwr0U2V.jpeg",
+        videoUrl: "https://playdulu.xyz/embed/0Ri6071n5kRQAAs",
+        genre: "Movie,Adventure, Animation, Comedy, Family, Science Fiction",
+        year: 2025,
+        label: "Movie",
+        rating: 6.8
+    },
+     {
+        title: "Hallow Road (2025)",
+        poster: "https://i.imgur.com/OxqqrOD.jpeg",
+        videoUrl: "https://playdulu.xyz/embed/cpNTR8s2OT9tXEq",
+        genre: "Movie,Drama, Horror, Thriller",
+        year: 2025,
+        label: "Movie",
+        rating: 6.0
+    },
 ];
+
 
 
