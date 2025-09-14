@@ -244,11 +244,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Kembali ke halaman utama
     homeLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        mainContent.classList.remove('hidden');
-        movieDetailPage.classList.add('hidden');
-        sectionTitle.textContent = 'Semua Film';
-        renderMovies(allMovies);
+            e.preventDefault();
+            mainContent.classList.remove('hidden');
+            movieDetailPage.classList.add('hidden');
+            sectionTitle.textContent = 'Semua Film';
+            renderMovies(allMovies);
+            renderHeroSlider(); // Re-render the slider
+            startAutoSlide(); // Restart the auto-slide
     });
     
     backToHomeBtn.addEventListener('click', (e) => {
