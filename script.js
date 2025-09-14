@@ -54,6 +54,10 @@ document.addEventListener('DOMContentLoaded', () => {
             posterImg.src = movie.poster;
             posterImg.alt = movie.title;
             posterImg.classList.add('w-full', 'h-auto');
+            
+            const titleElement = document.createElement('h3');
+            titleElement.classList.add('text-sm', 'md:text-base', 'font-semibold', 'text-center', 'py-2', 'px-1');
+            titleElement.textContent = movie.title;
     
             const labelSpan = document.createElement('span');
             labelSpan.classList.add('label');
@@ -64,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ratingSpan.textContent = movie.rating;
     
             movieCard.appendChild(posterImg);
+            movieCard.appendChild(titleElement);
             movieCard.appendChild(labelSpan);
             movieCard.appendChild(ratingSpan);
             movieListContainer.appendChild(movieCard);
