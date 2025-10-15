@@ -253,7 +253,7 @@
                 synopsis: "Sebuah komedi situasi yang absurd tentang dua sahabat yang mencoba menjadi kaya dalam semalam melalui skema yang paling konyol. Dijamin mengocok perut dengan humor yang tidak terduga.",
                 monetizationLink: "https://adsterra.com/direct-link-3", // INI UNTUK OVERLAY (IKLAN)
                 downloadLink: "https://drive.google.com/unduhan/film3", // INI UNTUK TOMBOL UNDUH (FILM ASLI)
-                embedCode: placeholderEmbed,
+                embedCode: "https://www.youtube.com/embed/ganti-dengan-kode-video-anda?autoplay=0&controls=1",
             },
             { 
                 id: 4, 
@@ -1141,12 +1141,36 @@
                 </article>
             `;
 
-            const bottomPostAds = `
-                <div class="space-y-4 mt-8">
-                    ${createAdSlot('Post Bawah Frame 1')}
-                    ${createAdSlot('Post Bawah Frame 2')}
-                </div>
-            `;
+const bottomPostAds = `
+  <div class="space-y-4 mt-8 text-center">
+    <!-- Banner Adsterra 728x90 -->
+    <div id="adsterra-banner"></div>
+    <script>
+      (function() {
+        const adContainer = document.getElementById('adsterra-banner');
+        const script1 = document.createElement('script');
+        script1.type = 'text/javascript';
+        script1.innerHTML = `
+          atOptions = {
+            'key': '99c239e74052f2efe40aefed8b667ec4',
+            'format': 'iframe',
+            'height': 90,
+            'width': 728,
+            'params': {}
+          };
+        `;
+        const script2 = document.createElement('script');
+        script2.type = 'text/javascript';
+        script2.src = '//bulletinsituatedelectronics.com/99c239e74052f2efe40aefed8b667ec4/invoke.js';
+        adContainer.appendChild(script1);
+        adContainer.appendChild(script2);
+      })();
+    </script>
+
+    ${createAdSlot('Post Bawah Frame 2')}
+  </div>
+`;
+
 
             mainContent.innerHTML = topPostAds + postContent + bottomPostAds;
             
@@ -1231,3 +1255,4 @@
 
 </body>
 </html>
+
