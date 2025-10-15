@@ -12,32 +12,9 @@
             font-family: 'Inter', sans-serif;
             background-color: #f7f7f7;
         }
-        /* Style untuk area iklan 728x90 */
+        /* Style untuk area iklan 728x90 (DIHILANGKAN, tapi style dasarnya tetap dipertahankan jika sewaktu-waktu dibutuhkan) */
         .ad-slot {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            text-align: center;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            min-height: 90px;
-        }
-        /* Ukuran desktop (728x90) */
-        .ad-slot-desktop {
-            width: 728px;
-            height: 90px;
-            margin: 0 auto;
-        }
-        /* Ukuran mobile: lebar penuh, tinggi otomatis menyesuaikan */
-        @media (max-width: 768px) {
-            .ad-slot-desktop {
-                width: 100%;
-                height: 60px;
-                font-size: 0.75rem;
-                min-height: 60px;
-            }
+            display: none; /* Menyembunyikan ad-slot */
         }
         /* Custom scrollbar style for better UX on the category bar */
         .no-scrollbar::-webkit-scrollbar {
@@ -451,7 +428,7 @@
                 synopsis: "Petualangan fantasi epik dengan makhluk-makhluk ajaib dan dunia yang luas.", 
                 monetizationLink: "https://adsterra.com/direct-link-15", // INI UNTUK OVERLAY (IKLAN)
                 downloadLink: "https://drive.google.com/unduhan/film15", // INI UNTUK TOMBOL UNDUH (FILM ASLI)
-                embedCode: placeholderEmbed,
+                embedCode: "GANTI_DENGAN_URL_EMBED_YOUTUBE_ATAU_PLATFORM_LAIN",
             }
         ];
 
@@ -527,11 +504,13 @@
                 videoFrame.src = embedUrl; 
                 videoFrame.dataset.currentEpisodeIndex = episodeIndex; // Simpan index baru
 
-                // 2. Update UI Teks
+                // 2. Update UI Teks (JUDUL DIPINDAHKAN KE ATAS VIDEO)
                 if (episodeTitleDisplay) {
+                    // Update judul episode di atas video
                     episodeTitleDisplay.textContent = `${movieTitle} - Episode ${episodeNum}`;
                 }
                 if (episodeMessage) {
+                    // Update pesan (status loading)
                     episodeMessage.textContent = `Episode ${episodeNum} sedang dimuat...`;
                     episodeMessage.classList.add('text-green-600');
                     episodeMessage.classList.remove('text-red-500', 'font-bold');
@@ -554,7 +533,8 @@
                 if (nextButton) {
                     nextButton.disabled = isLatestEpisode;
                     nextButton.classList.toggle('bg-gray-400', isLatestEpisode);
-                    nextButton.classList.toggle('bg-red-600', !isLatestEpisode);
+                    // Tombol 'Selanjutnya' tetap merah untuk menarik perhatian
+                    nextButton.classList.toggle('bg-red-600', !isLatestEpisode); 
                     nextButton.classList.toggle('hover:bg-red-700', !isLatestEpisode);
                 }
                 
@@ -594,25 +574,9 @@
         }
 
         /**
-         * Membuat slot iklan 728x90 yang responsif.
-         * @param {string} slotName - Nama slot iklan.
+         * FUNGSI createAdSlot DIHAPUS karena slot iklan banner (728x90) dihilangkan.
+         * Style .ad-slot di <style> diset display: none; untuk jaga-jaga.
          */
-        function createAdSlot(slotName) {
-            // --- TEMPEL KODE IKLAN ADSTERRA ANDA DI SINI ---
-            const adCode = `
-                <div style="background: #e0f7fa; color: #00838f; padding: 10px; border: 1px dashed #00bcd4; width: 100%; height: 100%;">
-                    TEMPAT KODE IKLAN ADSTERRA 728x90 AKTIF<br>
-                    Slot: ${slotName}
-                </div>
-            `;
-            // ---------------------------------------------------
-
-            return `
-                <div class="ad-slot ad-slot-desktop transition-all duration-300 mt-4 mb-4">
-                    ${adCode}
-                </div>
-            `;
-        }
 
         /**
          * Mendapatkan daftar film yang sudah difilter berdasarkan tipe saat ini.
@@ -634,7 +598,7 @@
             // Jika tidak ada film, tampilkan pesan
             if (movies.length === 0) {
                  return `
-                    <section id="${sectionId}" class="section-movie">
+                    <section id="${sectionId}" class="section-movie mt-8">
                         <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-4 border-blue-500 pb-2">${title}</h2>
                         <div class="text-center p-10 bg-white rounded-xl shadow-lg">
                             <p class="text-xl text-gray-600">Maaf, tidak ada konten ${currentFilterType} yang ditemukan di bagian ini.</p>
@@ -719,8 +683,9 @@
                 </div>
             ` : '';
 
+            // Menambahkan margin-top untuk memisahkan section (karena slot iklan sudah hilang)
             return `
-                <section id="${sectionId}" class="section-movie">
+                <section id="${sectionId}" class="section-movie mt-8"> 
                     <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-4 border-blue-500 pb-2">${title}</h2>
                     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                         ${postersHtml}
@@ -879,33 +844,11 @@
                 'latest'
             );
 
-            const topAds = `
-                <div class="space-y-4 mb-8">
-                    ${createAdSlot('Atas Slot 1')}
-                    ${createAdSlot('Atas Slot 2')}
-                </div>
-            `;
-            
-            const middleAds = `
-                <div class="space-y-4 my-8">
-                    ${createAdSlot('Tengah Slot 1')}
-                    ${createAdSlot('Tengah Slot 2')}
-                </div>
-            `;
-
-            const bottomAds = `
-                <div class="space-y-4 mt-8">
-                    ${createAdSlot('Bawah Slot 1')}
-                    ${createAdSlot('Bawah Slot 2')}
-                </div>
-            `;
+            // Semua slot iklan banner dihapus dari sini. Konten sekarang berdampingan.
             
             mainContent.innerHTML = 
-                topAds + 
-                popularSectionHtml + 
-                middleAds +          
-                latestSectionHtml +  
-                bottomAds;
+                popularSectionHtml +  // Konten Populer
+                latestSectionHtml;   // Konten Terbaru
         }
         
         /**
@@ -981,35 +924,31 @@
             let initialEmbedUrl = movie.embedCode || placeholderEmbed;
             let initialEpisodeIndex = -1;
             let initialEpisodeNum = 0; 
+            let initialTitleDisplay = movie.title; // Default untuk Movie
 
             // Konten yang memiliki episode (Series, Donghua, Anime)
             const hasEpisodes = (movie.type !== 'Movie') && movie.episodes && movie.episodes.length > 0;
 
             if (hasEpisodes) {
-                // --- PERUBAHAN UTAMA DI SINI: Muat Episode TERAKHIR (Terbaru) ---
+                // Muat Episode TERAKHIR (Terbaru)
                 const lastEpisodeIndex = movie.episodes.length - 1; 
                 const latestEpisode = movie.episodes[lastEpisodeIndex]; 
                 
                 initialEmbedUrl = latestEpisode.embedUrl;
                 initialEpisodeIndex = lastEpisodeIndex;
                 initialEpisodeNum = latestEpisode.num;
-                // --- AKHIR PERUBAHAN UTAMA ---
+                // Update judul awal untuk Series/Donghua/Anime
+                initialTitleDisplay = `${movie.title} - Episode ${initialEpisodeNum}`;
 
             } else if (movie.type === 'Movie') {
                  initialEpisodeNum = 1; // Anggap film sebagai 'Episode 1' untuk display title
+                 initialTitleDisplay = movie.title; // Movie hanya tampilkan judul film
             }
 
-
-            const topPostAds = `
-                <div class="space-y-4 mb-8">
-                    ${createAdSlot('Post Atas Frame 1')}
-                    ${createAdSlot('Post Atas Frame 2')}
-                </div>
-            `;
-            
             // Logika untuk tombol navigasi episode (hanya untuk Series/Donghua/Anime)
             const episodeNavigation = hasEpisodes ? `
-                <!-- PERBAIKAN: Mengubah Flex menjadi kolom di mobile (flex-col) dan baris di desktop (md:flex-row) -->
+                <!-- Tombol Navigasi Episode (Kembali & Selanjutnya) -->
+                <!-- PERUBAHAN: Dikeluarkan dari div Judul, dan tetap di bawah video -->
                 <div class="flex flex-col md:flex-row justify-between items-center bg-gray-100 p-4 rounded-lg shadow-inner mt-4 space-y-3 md:space-y-0">
                     
                     <!-- Tombol Kembali -->
@@ -1025,12 +964,10 @@
                         Kembali
                     </button>
 
-                    <!-- Judul Episode Aktif -->
+                    <!-- Pesan Status Episode Aktif -->
                     <div class="text-center w-full md:w-auto py-2 md:py-0">
-                        <h4 id="episode-title-display" class="font-bold text-lg text-gray-800">
-                            ${movie.title} - Episode ${initialEpisodeNum}
-                        </h4>
-                        <p id="episode-message" class="text-sm text-green-600 font-semibold"></p>
+                        <!-- Judul episode sudah dipindah ke ATAS video -->
+                        <p id="episode-message" class="text-sm text-green-600 font-semibold">Tonton Episode ${initialEpisodeNum}</p>
                     </div>
 
                     <!-- Tombol Selanjutnya -->
@@ -1074,7 +1011,17 @@
                     <!-- Tempat Embed Video (Frame) & Lapisan Iklan -->
                     <div class="w-full mb-4">
                         <h3 class="text-2xl font-semibold mb-3 text-blue-700">Tonton</h3> 
-                        <div class="iframe-container">
+                        
+                        <!-- BARU: Judul Episode di ATAS Video (Sesuai Permintaan) -->
+                        ${hasEpisodes ? `
+                            <div class="bg-gray-200 p-3 rounded-t-lg text-center shadow-md -mb-1 z-10 relative">
+                                <h4 id="episode-title-display" class="font-bold text-xl text-gray-900">
+                                    ${initialTitleDisplay}
+                                </h4>
+                            </div>
+                        ` : ''}
+
+                        <div class="iframe-container ${hasEpisodes ? 'rounded-t-none' : ''}">
                             
                             <!-- Lapisan Transparan Penuh (Overlay Iklan) -->
                             <div id="overlay-${movie.id}" 
@@ -1140,15 +1087,10 @@
                     ${renderRecommendations(movie)}
                 </article>
             `;
+            
+            // Slot iklan banner dihapus dari sini.
 
-            const bottomPostAds = `
-                <div class="space-y-4 mt-8">
-                    ${createAdSlot('Post Bawah Frame 1')}
-                    ${createAdSlot('Post Bawah Frame 2')}
-                </div>
-            `;
-
-            mainContent.innerHTML = topPostAds + postContent + bottomPostAds;
+            mainContent.innerHTML = postContent;
             
             // Panggil changeEpisode untuk inisialisasi status tombol setelah DOM dimuat
             // Ini akan memastikan tombol navigasi dan tombol episode di daftar terlihat benar
@@ -1231,4 +1173,3 @@
 
 </body>
 </html>
-
