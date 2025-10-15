@@ -3,204 +3,1229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pusat Movie</title>
-    <meta name="description" content="Situs streaming dan download donghua terlengkap dan terupdate, dengan koleksi film dan serial.">
-    <meta name="keywords" content="donghua, film, movie, serial, animasi, cina, tonton, streaming">
-    <meta name="author" content="DICAKUN">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <title>DICAKUN - Situs Film, Series, Donghua, Anime </title>
+    <!-- Memuat Tailwind CSS untuk styling responsif -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        /* Menggunakan font Inter secara default */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #121212;
-            color: #fff;
+            background-color: #f7f7f7;
         }
-        .header-bg {
-            background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://seaty24.com/wp-content/uploads/2023/12/Poster-The-Sword-Emperor-of-Eternity.jpg');
-            background-size: cover;
-            background-position: center;
-        }
-        .movie-card {
-            position: relative;
-            overflow: hidden;
-        }
-        .movie-card .label, .movie-card .rating {
-            position: absolute;
-            top: 8px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.75rem;
+        /* Style untuk area iklan 728x90 */
+        .ad-slot {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: bold;
-            color: white;
+            text-align: center;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            min-height: 90px;
         }
-        .movie-card .label {
-            left: 8px;
-            background-color: #ef4444;
+        /* Ukuran desktop (728x90) */
+        .ad-slot-desktop {
+            width: 728px;
+            height: 90px;
+            margin: 0 auto;
         }
-        .movie-card .rating {
-            right: 8px;
-            background-color: rgba(0, 0, 0, 0.6);
-            border: 1px solid #fff;
+        /* Ukuran mobile: lebar penuh, tinggi otomatis menyesuaikan */
+        @media (max-width: 768px) {
+            .ad-slot-desktop {
+                width: 100%;
+                height: 60px;
+                font-size: 0.75rem;
+                min-height: 60px;
+            }
         }
-        .video-container {
-            position: relative;
-            width: 100%;
-            padding-bottom: 56.25%; /* Rasio aspek 16:9 */
-            height: 0;
+        /* Custom scrollbar style for better UX on the category bar */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
         }
-        .video-container iframe {
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        /* Penyesuaian untuk iframe di dalam div relative */
+        .iframe-container {
+             position: relative;
+             width: 100%;
+             height: 0;
+             padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+             overflow: hidden;
+             border-radius: 0.5rem; /* rounded-lg */
+             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); /* shadow-xl */
+        }
+        .iframe-container iframe {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
         }
+        /* Style untuk overlay transparan penuh (TIDAK ADA TOMBOL PLAY LAGI) */
+        .transparent-overlay {
+            /* Warna transparan penuh agar tidak terlihat */
+            background-color: transparent; 
+            /* Memastikan lapisan menutupi seluruh frame */
+            width: 100%;
+            height: 100%;
+            /* Pastikan kursor berubah menjadi pointer */
+            cursor: pointer;
+            /* Tambahkan sedikit efek hover visual untuk feedback, misal: opacity */
+            transition: opacity 0.1s ease;
+        }
+        .transparent-overlay:hover {
+            /* Sedikit kegelapan saat di hover, sebagai feedback visual */
+            background-color: rgba(0, 0, 0, 0.05);
+        }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-100">
+<body class="min-h-screen">
 
-    <!-- Header & Navigasi -->
-    <header class="header-bg py-4 px-6 md:px-12 relative z-10">
-        <div class="container mx-auto flex items-center justify-between">
-            <h1 class="text-2xl font-bold">
-                <span class="text-white">DICA</span><span class="text-orange-500">KUN</span>
+    <!-- Header & Navigasi Utama -->
+    <header class="bg-blue-800 shadow-lg sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <!-- Logo/Judul: DICAKUN -->
+            <h1 class="text-3xl font-extrabold text-white tracking-wider">
+                <a href="#home" onclick="navigate('home')" class="hover:text-blue-200 transition duration-300">DICAKUN</a>
             </h1>
-            
-            <!-- Tombol Hamburger (Mobile) -->
-            <div class="md:hidden flex items-center space-x-4">
-                <button id="search-mobile-btn" class="text-white text-xl">
-                    <i class="fas fa-search"></i>
-                </button>
-                <button id="menu-btn" class="text-white text-xl">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
 
-            <!-- Navigasi Desktop -->
-            <nav id="main-nav" class="hidden md:flex flex-grow justify-end">
-                <ul class="flex items-center space-x-6">
-                    <li><a href="#" id="home-link" class="hover:text-orange-500 transition-colors">Home</a></li>
-                    <li><a href="#" class="hover:text-orange-500 transition-colors" data-filter="Donghua">Donghua</a></li>
-                    <li><a href="#" class="hover:text-orange-500 transition-colors" data-filter="Movie">Movie</a></li>
-                    <li class="relative">
-                        <a href="#" id="year-dropdown-btn" class="hover:text-orange-500 transition-colors flex items-center">
-                            Year <i class="fas fa-chevron-down ml-2 text-xs"></i>
-                        </a>
-                        <div id="year-dropdown-menu" class="absolute hidden bg-gray-800 text-white mt-2 py-2 w-40 rounded-md shadow-lg z-20">
-                            <!-- Tahun akan di-generate oleh JS -->
-                        </div>
-                    </li>
-                    <li><a href="#" class="hover:text-orange-500 transition-colors" data-filter="All">All</a></li>
-                </ul>
-            </nav>
-            
-            <!-- Search & User Icon Desktop -->
-            <div class="hidden md:flex items-center space-x-4 ml-6">
-                <div class="relative hidden md:block">
-                    <input id="search-input-desktop" type="text" placeholder="Enter keywords..." class="bg-gray-800 text-white rounded-full py-2 px-4 focus:outline-none focus:ring-2 focus:ring-orange-500">
-                    <button class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-500 transition-colors">
-                        <i class="fas fa-search"></i>
+            <!-- Search Bar dan Tombol Navigasi -->
+            <div class="w-full md:w-auto flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-4">
+                
+                <!-- Search Input Group -->
+                <div class="flex w-full md:w-64">
+                    <input 
+                        type="text" 
+                        id="search-input"
+                        placeholder="Cari film atau series..." 
+                        class="p-2 w-full rounded-l-lg focus:ring-blue-400 focus:border-blue-400 border-none text-gray-800 shadow-inner"
+                        onkeydown="if(event.key === 'Enter') searchMovies()"
+                    >
+                    <button 
+                        onclick="searchMovies()" 
+                        class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-r-lg transition duration-300 shadow-md flex items-center justify-center"
+                        aria-label="Tombol Pencarian"
+                    >
+                        <!-- Icon Kaca Pembesar (Inline SVG for simplicity) -->
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </button>
                 </div>
-                <button class="text-white text-xl hover:text-orange-500 transition-colors">
-                    <i class="fas fa-bell"></i>
-                </button>
-                <button class="text-white text-xl hover:text-orange-500 transition-colors">
-                    <i class="fas fa-user-circle"></i>
+                
+                <!-- Tombol Beranda -->
+                <button onclick="navigate('home')" class="px-4 py-2 w-full md:w-auto text-white font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 transition duration-300 shadow-md">
+                    Beranda
                 </button>
             </div>
         </div>
+
+        <!-- BILAH KATEGORI BARU (Di bawah header, responsif) -->
+        <div class="bg-blue-700 w-full shadow-inner">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div id="category-bar" class="flex overflow-x-auto whitespace-nowrap py-2 space-x-3 no-scrollbar">
+                    <!-- Tombol Home/Semua -->
+                    <button 
+                        onclick="filterType('All')" 
+                        class="category-btn px-4 py-1.5 text-sm font-medium rounded-full transition duration-200 shadow-md flex-shrink-0 bg-blue-500 text-white hover:bg-blue-400"
+                        data-type="All"
+                    >
+                        Semua Konten
+                    </button>
+                    <!-- Tombol Movie -->
+                    <button 
+                        onclick="filterType('Movie')" 
+                        class="category-btn px-4 py-1.5 text-sm font-medium rounded-full transition duration-200 shadow-md flex-shrink-0 bg-blue-900 text-white hover:bg-blue-600"
+                        data-type="Movie"
+                    >
+                        Movie
+                    </button>
+                    <!-- Tombol Series -->
+                    <button 
+                        onclick="filterType('Series')" 
+                        class="category-btn px-4 py-1.5 text-sm font-medium rounded-full transition duration-200 shadow-md flex-shrink-0 bg-blue-900 text-white hover:bg-blue-600"
+                        data-type="Series"
+                    >
+                        Series TV
+                    </button>
+                    <!-- Tombol Donghua (Ditambahkan) -->
+                    <button 
+                        onclick="filterType('Donghua')" 
+                        class="category-btn px-4 py-1.5 text-sm font-medium rounded-full transition duration-200 shadow-md flex-shrink-0 bg-blue-900 text-white hover:bg-blue-600"
+                        data-type="Donghua"
+                    >
+                        Donghua
+                    </button>
+                    <!-- Tombol Anime (Ditambahkan) -->
+                    <button 
+                        onclick="filterType('Anime')" 
+                        class="category-btn px-4 py-1.5 text-sm font-medium rounded-full transition duration-200 shadow-md flex-shrink-0 bg-blue-900 text-white hover:bg-blue-600"
+                        data-type="Anime"
+                    >
+                        Anime
+                    </button>
+                    <!-- Tombol akan bergeser (scrollable) di mobile -->
+                </div>
+            </div>
+        </div>
+        <!-- AKHIR BILAH KATEGORI -->
+
     </header>
 
-    <!-- Modal Pencarian Mobile -->
-    <div id="search-modal" class="fixed inset-0 bg-gray-900 bg-opacity-90 z-40 hidden flex items-start justify-center pt-8">
-        <div class="w-full max-w-sm px-4">
-            <div class="relative">
-                <input id="search-input-mobile" type="text" placeholder="Enter keywords..." class="w-full bg-gray-800 text-white rounded-full py-2 px-4 focus:outline-none focus:ring-2 focus:ring-orange-500">
-                <button id="close-search-modal" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-500 transition-colors">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <div id="main-content" class="relative">
-        <!-- Bagian Banner Afiliasi -->
-        <div class="max-w-7xl mx-auto px-4 my-8 md:my-10">
-            <div id="adsterra-banner-container" class="w-full text-center">
-                <script type="text/javascript">
-	atOptions = {
-		'key' : 'ffdff708edae7939e16ca710f413b948',
-		'format' : 'iframe',
-		'height' : 90,
-		'width' : 728,
-		'params' : {}
-	};
-</script>
-<script type="text/javascript" src="//www.highperformanceformat.com/ffdff708edae7939e16ca710f413b948/invoke.js"></script>
-            </div>
-        </div>
-    
-        <!-- Bagian Daftar Film Utama -->
-        <section class="container mx-auto px-4 mb-8">
-            <div class="flex justify-between items-center mb-4">
-                <h2 id="section-title" class="text-xl md:text-2xl font-bold">Semua Film</h2>
-            </div>
-            <div id="movie-list-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
-                <!-- Daftar film akan dirender di sini oleh script.js -->
-            </div>
-        </section>
-    </div>
+    <!-- Konten Utama -->
+    <main id="main-content" class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        <!-- Konten akan dimuat di sini oleh JavaScript -->
+    </main>
 
-    <!-- Halaman Detail Film (Tersembunyi Awalnya) -->
-    <div id="movie-detail-page" class="hidden container mx-auto px-4 py-8">
-        <div class="bg-gray-800 rounded-lg p-6 md:p-8 shadow-lg">
-            <!-- Tombol navigasi kembali -->
-            <button id="back-to-home" class="mb-6 text-gray-400 hover:text-white transition-colors">
-                <i class="fas fa-arrow-left mr-2"></i> Kembali
-            </button>
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-12 py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p>&copy; 2024 DICAKUN. Semua Hak Cipta Dilindungi.</p>
+        </div>
+    </footer>
+
+    <!-- Logika JavaScript -->
+    <script>
+        // Data Film Mockup (diperluas dengan totalEpisodes)
+        const placeholderEmbed = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0&controls=1";
+
+        // --- FUNGSI UTILITY BARU: SLUGIFY ---
+        /**
+         * Mengubah string judul menjadi slug yang aman untuk URL.
+         * Contoh: "Petualangan Rahasia di Kota" -> "petualangan-rahasia-di-kota"
+         * @param {string} text - Teks yang akan diubah menjadi slug.
+         * @returns {string} - Slug yang aman.
+         */
+        function slugify(text) {
+            return text.toString().toLowerCase()
+                .replace(/\s+/g, '-')           // Ganti spasi dengan tanda hubung
+                .replace(/[^\w\-]+/g, '')       // Hapus semua karakter non-kata
+                .replace(/\-\-+/g, '-')         // Ganti tanda hubung ganda dengan satu
+                .replace(/^-+/, '')             // Hapus tanda hubung dari awal
+                .replace(/-+$/, '');            // Hapus tanda hubung dari akhir
+        }
+        // --- AKHIR FUNGSI UTILITY BARU: SLUGIFY ---
+
+
+        const mockMovies = [
+            { 
+                id: 1, 
+                title: "Petualangan Rahasia di Kota", 
+                category: "Aksi/Sci-Fi", 
+                rating: "8.5", 
+                type: "Movie", 
+                views: 9800, 
+                posterUrl: "https://placehold.co/300x450/0d47a1/ffffff?text=MOVIE+1",
+                synopsis: "Sekelompok ilmuwan muda menemukan sebuah portal tersembunbi di bawah kota yang mereka tinggali. Mereka harus berpacu dengan waktu untuk menutup portal tersebut sebelum makhluk asing menyerbu. Penuh aksi cepat dan efek visual yang memukau!",
+                monetizationLink: "https://adsterra.com/direct-link-1", // INI UNTUK OVERLAY (IKLAN)
+                downloadLink: "https://drive.google.com/unduhan/film1", // INI UNTUK TOMBOL UNDUH (FILM ASLI)
+                embedCode: placeholderEmbed,
+            },
+            { 
+                id: 2, 
+                title: "Judul Series Drama", 
+                category: "Drama/Romantis", 
+                rating: "7.9", 
+                type: "Series", 
+                views: 4500, 
+                posterUrl: "https://placehold.co/300x450/8bc34a/ffffff?text=SERIES+2",
+                synopsis: "Mengisahkan perjalanan cinta yang rumit antara seorang dokter dan seorang musisi. Kisah ini dibumbui dengan konflik keluarga dan pilihan karir yang sulit, menunjukkan bahwa cinta sejati membutuhkan pengorbanan yang besar.",
+                monetizationLink: "https://adsterra.com/direct-link-2", // INI UNTUK OVERLAY (IKLAN)
+                downloadLink: "https://drive.google.com/unduhan/series2", // INI UNTUK TOMBOL UNDUH (FILM ASLI)
+                defaultEmbedUrl: "https://www.youtube.com/embed/ep2_1?autoplay=0", 
+                totalEpisodes: 4, // PROPERTI BARU: Total Episode
+                episodes: [
+                    { num: 1, embedUrl: "https://www.youtube.com/embed/ep2_1?autoplay=1" }, 
+                    { num: 2, embedUrl: "https://www.youtube.com/embed/ep2_2?autoplay=1" }, 
+                    { num: 3, embedUrl: "https://www.youtube.com/embed/ep2_3?autoplay=1" }, 
+                    { num: 4, embedUrl: "https://www.youtube.com/embed/ep2_4?autoplay=1" }
+                ]
+            },
+            { 
+                id: 3, 
+                title: "Film Komedi Terbaik", 
+                category: "Komedi", 
+                rating: "9.1", 
+                type: "Movie", 
+                views: 12100, 
+                posterUrl: "https://placehold.co/300x450/ff9800/ffffff?text=MOVIE+3",
+                synopsis: "Sebuah komedi situasi yang absurd tentang dua sahabat yang mencoba menjadi kaya dalam semalam melalui skema yang paling konyol. Dijamin mengocok perut dengan humor yang tidak terduga.",
+                monetizationLink: "https://adsterra.com/direct-link-3", // INI UNTUK OVERLAY (IKLAN)
+                downloadLink: "https://drive.google.com/unduhan/film3", // INI UNTUK TOMBOL UNDUH (FILM ASLI)
+                embedCode: placeholderEmbed,
+            },
+            { 
+                id: 4, 
+                title: "Horor Malam Jumat", 
+                category: "Horor/Thriller", 
+                rating: "6.5", 
+                type: "Series", 
+                views: 3200, 
+                posterUrl: "https://placehold.co/300x450/673ab7/ffffff?text=SERIES+4",
+                synopsis: "Setiap episode menceritakan kisah horor yang berbeda yang terjadi pada malam Jumat. Dari legenda urban hingga kejadian supranatural, series ini akan membuat Anda tidak tidur.",
+                monetizationLink: "https://adsterra.com/direct-link-4", // INI UNTUK OVERLAY (IKLAN)
+                downloadLink: "https://drive.google.com/unduhan/series4", // INI UNTUK TOMBOL UNDUH (FILM ASLI)
+                defaultEmbedUrl: "https://www.youtube.com/embed/ep4_1?autoplay=0", 
+                totalEpisodes: 3, // PROPERTI BARU: Total Episode
+                episodes: [
+                    { num: 1, embedUrl: "https://www.youtube.com/embed/ep4_1?autoplay=1" }, 
+                    { num: 2, embedUrl: "https://www.youtube.com/embed/ep4_2?autoplay=1" }, 
+                    { num: 3, embedUrl: "https://www.youtube.com/embed/ep4_3?autoplay=1" }
+                ]
+            },
+            { 
+                id: 5, 
+                title: "Dokumenter Alam", 
+                category: "Dokumenter", 
+                rating: "8.8", 
+                type: "Movie", 
+                views: 7600, 
+                posterUrl: "https://placehold.co/300x450/4caf50/ffffff?text=MOVIE+5",
+                synopsis: "Mengungkap keajaiban dan kerapuhan ekosistem bumi, dari kedalaman laut hingga puncak gunung tertinggi. Sebuah karya sinematik yang memukau dan mendidik.",
+                monetizationLink: "https://adsterra.com/direct-link-5", // INI UNTUK OVERLAY (IKLAN)
+                downloadLink: "https://drive.google.com/unduhan/film5", // INI UNTUK TOMBOL UNDUH (FILM ASLI)
+                embedCode: placeholderEmbed,
+            },
+            { 
+                id: 6, 
+                title: "Aksi Balas Dendam", 
+                category: "Aksi", 
+                rating: "8.2", 
+                type: "Movie", 
+                views: 15000, 
+                posterUrl: "https://placehold.co/300x450/f44336/ffffff?text=MOVIE+6", 
+                synopsis: "Seorang mantan agen rahasia mencari keadilan setelah keluarganya diserang. Film ini penuh dengan koreografi pertarungan yang intens dan alur cerita yang memeras emosi.", 
+                monetizationLink: "https://adsterra.com/direct-link-6", // INI UNTUK OVERLAY (IKLAN)
+                downloadLink: "https://drive.google.com/unduhan/film6", // INI UNTUL TOMBOL UNDUH (FILM ASLI)
+                embedCode: placeholderEmbed,
+            },
+            { 
+                id: 7, 
+                title: "Dunia Fantasi Series", 
+                category: "Fantasi", 
+                rating: "9.5", 
+                type: "Series", 
+                views: 25000, 
+                posterUrl: "https://placehold.co/300x450/e91e63/ffffff?text=SERIES+7",
+                synopsis: "Di dunia yang dipenuhi sihir dan makhluk mitos, sekelompok pahlawan memulai misi berbahaya untuk mengembalikan artefak kuno sebelum jatuh ke tangan raja iblis.",
+                monetizationLink: "https://adsterra.com/direct-link-7", // INI UNTUK OVERLAY (IKLAN)
+                downloadLink: "https://drive.google.com/unduhan/series7", // INI UNTUK TOMBOL UNDUH (FILM ASLI)
+                defaultEmbedUrl: "https://www.youtube.com/embed/ep7_1_panggilan?autoplay=0", 
+                totalEpisodes: 5, // PROPERTI BARU: Total Episode
+                episodes: [
+                    { num: 1, embedUrl: "https://www.youtube.com/embed/ep7_1_panggilan?autoplay=1" }, 
+                    { num: 2, embedUrl: "https://www.youtube.com/embed/ep7_2_hutan?autoplay=1" }, 
+                    { num: 3, embedUrl: "https://www.youtube.com/embed/ep7_3_perjanjian?autoplay=1" },
+                    { num: 4, embedUrl: "https://www.youtube.com/embed/ep7_4_gerbang?autoplay=1" }, 
+                    { num: 5, embedUrl: "https://www.youtube.com/embed/ep7_5_raja?autoplay=1" }
+                ]
+            },
+            { 
+                id: 8, 
+                title: "Kisah Sedih", 
+                category: "Drama", 
+                rating: "7.1", 
+                type: "Movie", 
+                views: 1200, 
+                posterUrl: "https://placehold.co/300x450/9c27b0/ffffff?text=MOVIE+8", 
+                synopsis: "Sebuah narasi menyentuh tentang kehilangan, penerimaan, dan kekuatan keluarga dalam menghadapi kesulitan yang tak terduga.", 
+                monetizationLink: "https://adsterra.com/direct-link-8", // INI UNTUK OVERLAY (IKLAN)
+                downloadLink: "https://drive.google.com/unduhan/film8", // INI UNTUK TOMBOL UNDUH (FILM ASLI)
+                embedCode: placeholderEmbed,
+            },
+            { 
+                id: 9, 
+                title: "Pedang Langit Abadi", 
+                category: "Fantasi/Wuxia", 
+                rating: "8.9", 
+                type: "Donghua", 
+                views: 18000, 
+                posterUrl: "https://placehold.co/300x450/1a237e/ffffff?text=DONGHUA+9", 
+                synopsis: "Kisah kultivasi abadi yang penuh dengan pertempuran magis, persahabatan, dan pengkhianatan di dunia yang luas dan indah.", 
+                monetizationLink: "https://adsterra.com/direct-link-9", // INI UNTUK OVERLAY (IKLAN)
+                downloadLink: "https://drive.google.com/unduhan/donghua9", // INI UNTUK TOMBOL UNDUH (FILM ASLI)
+                defaultEmbedUrl: "https://www.youtube.com/embed/ep9_1?autoplay=0", 
+                totalEpisodes: 12, // PROPERTI BARU: Total Episode
+                episodes: [
+                    { num: 1, embedUrl: "https://www.youtube.com/embed/ep9_1?autoplay=1" }, 
+                    { num: 2, embedUrl: "https://www.youtube.com/embed/ep9_2?autoplay=1" },
+                    // Asumsikan ada 10 episode lagi...
+                ],
+            },
+            { 
+                id: 10, 
+                title: "Misteri Pembunuhan", 
+                category: "Thriller", 
+                rating: "7.8", 
+                type: "Movie", 
+                views: 6500, 
+                posterUrl: "https://placehold.co/300x450/00bcd4/ffffff?text=MOVIE+10", 
+                synopsis: "Seorang detektif veteran harus memecahkan serangkaian pembunuhan berantai yang terinspirasi dari karya seni kuno, sebelum korban berikutnya ditemukan.", 
+                monetizationLink: "https://adsterra.com/direct-link-10", // INI UNTUK OVERLAY (IKLAN)
+                downloadLink: "https://drive.google.com/unduhan/film10", // INI UNTUK TOMBOL UNDUH (FILM ASLI)
+                embedCode: placeholderEmbed,
+            },
+            { 
+                id: 11, 
+                title: "Anime Petarung", 
+                category: "Aksi/Shonen", 
+                rating: "9.3", 
+                type: "Anime", 
+                views: 22000, 
+                posterUrl: "https://placehold.co/300x450/d32f2f/ffffff?text=ANIME+11", 
+                synopsis: "Seorang anak laki-laki dengan tekad baja berlatih untuk menjadi petarung terkuat di dunia, menghadapi tantangan berat dan musuh yang tak terbayangkan.", 
+                monetizationLink: "https://adsterra.com/direct-link-11", // INI UNTUK OVERLAY (IKLAN)
+                downloadLink: "https://drive.google.com/unduhan/anime11", // INI UNTUK TOMBOL UNDUH (FILM ASLI)
+                defaultEmbedUrl: "https://www.youtube.com/embed/ep11_1?autoplay=0", 
+                totalEpisodes: 24, // PROPERTI BARU: Total Episode
+                episodes: [
+                    { num: 1, embedUrl: "https://www.youtube.com/embed/ep11_1?autoplay=1" }, 
+                    { num: 2, embedUrl: "https://www.youtube.com/embed/ep11_2?autoplay=1" }, 
+                    { num: 3, embedUrl: "https://www.youtube.com/embed/ep11_3?autoplay=1" }, 
+                    { num: 4, embedUrl: "https://www.youtube.com/embed/ep11_4?autoplay=1" }
+                ],
+            },
+            { 
+                id: 12, 
+                title: "Komedi Gila", 
+                category: "Komedi", 
+                rating: "8.3", 
+                type: "Series", 
+                views: 11000, 
+                posterUrl: "https://placehold.co/300x450/cddc39/ffffff?text=SERIES+12", 
+                synopsis: "Kehidupan sehari-hari dari sekelompok rekan kerja yang memiliki kepribadian aneh, penuh dengan kesalahpahaman lucu dan momen canggung yang tak terhindarkan.", 
+                monetizationLink: "https://adsterra.com/direct-link-12", // INI UNTUK OVERLAY (IKLAN)
+                downloadLink: "https://drive.google.com/unduhan/series12", // INI UNTUK TOMBOL UNDUH (FILM ASLI)
+                defaultEmbedUrl: "https://www.youtube.com/embed/ep12_1?autoplay=0", 
+                totalEpisodes: 10, // PROPERTI BARU: Total Episode
+                episodes: [
+                    { num: 1, embedUrl: "https://www.youtube.com/embed/ep12_1?autoplay=1" }, 
+                    { num: 2, embedUrl: "https://www.youtube.com/embed/ep12_2?autoplay=1" }
+                ],
+            },
+            { 
+                id: 13, 
+                title: "Donghua Dunia Kultivasi", 
+                category: "Fantasi/Wuxia", 
+                rating: "8.1", 
+                type: "Donghua", 
+                views: 150, 
+                posterUrl: "https://placehold.co/300x450/4a148c/ffffff?text=DONGHUA+13", 
+                synopsis: "Seorang pemuda yang diremehkan menemukan warisan kuno dan memulai jalan untuk mendominasi dunia kultivasi.", 
+                monetizationLink: "https://adsterra.com/direct-link-13", // INI UNTUK OVERLAY (IKLAN)
+                downloadLink: "https://drive.google.com/unduhan/donghua13", // INI UNTUK TOMBOL UNDUH (FILM ASLI)
+                defaultEmbedUrl: "https://www.youtube.com/embed/ep13_1?autoplay=0", 
+                totalEpisodes: 40, // PROPERTI BARU: Total Episode (Series Panjang)
+                episodes: [
+                    { num: 1, embedUrl: "https://www.youtube.com/embed/ep13_1?autoplay=1" }, 
+                    { num: 2, embedUrl: "https://www.youtube.com/embed/ep13_2?autoplay=1" }, 
+                    { num: 3, embedUrl: "https://www.youtube.com/embed/ep13_3?autoplay=1" }
+                ],
+            },
+            { 
+                id: 14, 
+                title: "Anime Petualangan", 
+                category: "Petualangan", 
+                rating: "7.5", 
+                type: "Anime", 
+                views: 100, 
+                posterUrl: "https://placehold.co/300x450/ff5722/ffffff?text=ANIME+14", 
+                synopsis: "Sekelompok bajak laut memulai perjalanan mencari harta karun terbesar di dunia.", 
+                monetizationLink: "https://adsterra.com/direct-link-14", // INI UNTUK OVERLAY (IKLAN)
+                downloadLink: "https://drive.google.com/unduhan/anime14", // INI UNTUK TOMBOL UNDUH (FILM ASLI)
+                defaultEmbedUrl: "https://www.youtube.com/embed/ep14_1?autoplay=0", 
+                totalEpisodes: 50, // PROPERTI BARU: Total Episode (Series Sangat Panjang)
+                episodes: [
+                    { num: 1, embedUrl: "https://www.youtube.com/embed/ep14_1?autoplay=1" }
+                ],
+            },
+            { 
+                id: 15, 
+                title: "Film Baru Fantasi", 
+                category: "Fantasi", 
+                rating: "9.0", 
+                type: "Movie", 
+                views: 50, 
+                posterUrl: "https://placehold.co/300x450/795548/ffffff?text=MOVIE+15", 
+                synopsis: "Petualangan fantasi epik dengan makhluk-makhluk ajaib dan dunia yang luas.", 
+                monetizationLink: "https://adsterra.com/direct-link-15", // INI UNTUK OVERLAY (IKLAN)
+                downloadLink: "https://drive.google.com/unduhan/film15", // INI UNTUK TOMBOL UNDUH (FILM ASLI)
+                embedCode: placeholderEmbed,
+            }
+        ];
+
+        // --- Tambahkan properti SLUG ke setiap film saat inisialisasi ---
+        mockMovies.forEach(movie => {
+            movie.slug = slugify(movie.title);
+        });
+        // -----------------------------------------------------------------
+
+        let currentPage = 'home';
+        const mainContent = document.getElementById('main-content');
+        
+        // State global untuk tipe yang sedang difilter
+        let currentFilterType = 'All'; // 'Movie', 'Series', 'Donghua', 'Anime', 'All'
+
+        // Konstanta untuk Pagination
+        const POSTERS_PER_BATCH = 10; 
+        
+        // State global untuk melacak halaman saat ini per bagian
+        let paginationState = {
+            popular: 1,
+            latest: 1
+        };
+
+
+        /**
+         * Menangani klik pada lapisan transparan (overlay) di atas pemutar video.
+         * Fungsinya adalah: 1. Redirect ke direct link iklan. 2. Menghilangkan overlay agar video bisa dimainkan.
+         * @param {string} directLinkUrl - URL tujuan direct link (monetization).
+         * @param {string} overlayId - ID overlay yang akan dihapus.
+         */
+        function handleMonetizationClick(directLinkUrl, overlayId) {
+            // 1. Buka direct link (Monetisasi) di tab baru
+            window.open(directLinkUrl, '_blank');
+
+            // 2. Hapus overlay
+            const overlayElement = document.getElementById(overlayId);
+            if (overlayElement) {
+                // Hapus elemen dari DOM agar tidak mengganggu interaksi video
+                overlayElement.remove(); 
+                
+                // Optional: Tampilkan pesan ke user
+                const messageArea = document.getElementById('episode-message');
+                if (messageArea) {
+                    messageArea.textContent = 'Iklan telah dibuka di tab baru. Silakan klik tombol play di video.';
+                    messageArea.classList.remove('text-green-600');
+                    messageArea.classList.add('text-red-500', 'font-bold');
+                }
+            }
+        }
+
+
+        /**
+         * Mengganti URL embed video di frame utama saat tombol episode diklik.
+         * @param {string} embedUrl - URL iframe yang akan dimuat.
+         * @param {number} episodeIndex - Index episode yang sedang dimainkan.
+         * @param {string} movieTitle - Judul film/series.
+         * @param {number} episodeNum - Nomor episode yang sedang dimainkan.
+         */
+        function changeEpisode(embedUrl, episodeIndex, movieTitle, episodeNum) {
+            const videoFrame = document.getElementById('video-frame');
+            const episodeMessage = document.getElementById('episode-message');
+            const episodeTitleDisplay = document.getElementById('episode-title-display');
+            const prevButton = document.getElementById('prev-episode-btn');
+            const nextButton = document.getElementById('next-episode-btn');
+            // Ambil ID film/series dari data attribute di iframe (saat ini sudah diset di renderPost)
+            const movieId = parseInt(videoFrame.dataset.movieId); 
+            const movie = mockMovies.find(m => m.id === movieId);
+
+
+            if (videoFrame && movie) {
+                // 1. Update iframe
+                videoFrame.src = embedUrl; 
+                videoFrame.dataset.currentEpisodeIndex = episodeIndex; // Simpan index baru
+
+                // 2. Update UI Teks
+                if (episodeTitleDisplay) {
+                    episodeTitleDisplay.textContent = `${movieTitle} - Episode ${episodeNum}`;
+                }
+                if (episodeMessage) {
+                    episodeMessage.textContent = `Episode ${episodeNum} sedang dimuat...`;
+                    episodeMessage.classList.add('text-green-600');
+                    episodeMessage.classList.remove('text-red-500', 'font-bold');
+                    setTimeout(() => {
+                        episodeMessage.textContent = '';
+                    }, 2000);
+                }
+
+                // 3. Update Tombol Navigasi (Aktif/Nonaktif) - Hanya untuk Series
+                const totalEpisodes = movie.episodes ? movie.episodes.length : 0;
+                const isLatestEpisode = episodeIndex === totalEpisodes - 1;
+                const isFirstEpisode = episodeIndex === 0;
+
+                if (prevButton) {
+                    prevButton.disabled = isFirstEpisode;
+                    prevButton.classList.toggle('bg-gray-400', isFirstEpisode);
+                    prevButton.classList.toggle('bg-blue-600', !isFirstEpisode);
+                    prevButton.classList.toggle('hover:bg-blue-700', !isFirstEpisode);
+                }
+                if (nextButton) {
+                    nextButton.disabled = isLatestEpisode;
+                    nextButton.classList.toggle('bg-gray-400', isLatestEpisode);
+                    nextButton.classList.toggle('bg-red-600', !isLatestEpisode);
+                    nextButton.classList.toggle('hover:bg-red-700', !isLatestEpisode);
+                }
+                
+                // 4. Update status tombol di daftar episode
+                document.querySelectorAll('.episode-btn').forEach(btn => {
+                    const btnIndex = parseInt(btn.dataset.episodeIndex);
+                    if (btnIndex === episodeIndex) {
+                        btn.classList.remove('bg-blue-100', 'text-blue-800', 'hover:bg-blue-600', 'hover:text-white');
+                        btn.classList.add('bg-blue-600', 'text-white', 'ring-2', 'ring-blue-800');
+                    } else {
+                        btn.classList.remove('bg-blue-600', 'text-white', 'ring-2', 'ring-blue-800');
+                        btn.classList.add('bg-blue-100', 'text-blue-800', 'hover:bg-blue-600', 'hover:text-white');
+                    }
+                });
+            }
+        }
+        
+        /**
+         * Fungsi untuk navigasi Episode (Selanjutnya/Kembali)
+         * @param {number} movieId - ID film/series.
+         * @param {number} direction - -1 untuk kembali, +1 untuk selanjutnya.
+         */
+        function navigateEpisode(movieId, direction) {
+            const movie = mockMovies.find(m => m.id === movieId);
+            const videoFrame = document.getElementById('video-frame');
             
-            <div class="md:flex md:space-x-8">
-                <!-- Poster Film -->
-                <div class="md:w-1/3 flex-shrink-0 mb-6 md:mb-0 relative">
-                    <img id="detail-poster" class="w-full rounded-lg shadow-md" src="" alt="Poster Film">
-                    <!-- Rating dan genre akan ditempatkan di sini oleh JS -->
-                    <div id="detail-label-container" class="absolute top-4 left-4"></div>
-                    <div id="detail-rating-container" class="absolute top-4 right-4"></div>
-                    
-                    <div class="mt-4 text-center">
-                        <!-- Tautan Download -->
-                        <a id="download-btn" href="#" target="_blank" class="block bg-orange-500 text-white font-bold py-2 px-4 rounded-md hover:bg-orange-600 transition-colors text-sm md:text-base">
-                            <i class="fas fa-download mr-2"></i> Download Film
-                        </a>
-                    </div>
+            if (!movie || !movie.episodes || !videoFrame) return;
+
+            let currentIndex = parseInt(videoFrame.dataset.currentEpisodeIndex);
+            let newIndex = currentIndex + direction;
+
+            if (newIndex >= 0 && newIndex < movie.episodes.length) {
+                const newEpisode = movie.episodes[newIndex];
+                // Panggil changeEpisode dengan data baru
+                changeEpisode(newEpisode.embedUrl, newIndex, movie.title, newEpisode.num);
+            }
+        }
+
+        /**
+         * Membuat slot iklan 728x90 yang responsif.
+         * @param {string} slotName - Nama slot iklan.
+         */
+        function createAdSlot(slotName) {
+            // --- TEMPEL KODE IKLAN ADSTERRA ANDA DI SINI ---
+            const adCode = `
+                <div style="background: #e0f7fa; color: #00838f; padding: 10px; border: 1px dashed #00bcd4; width: 100%; height: 100%;">
+                    TEMPAT KODE IKLAN ADSTERRA 728x90 AKTIF<br>
+                    Slot: ${slotName}
                 </div>
+            `;
+            // ---------------------------------------------------
 
-                <!-- Detail & Video -->
-                <div class="md:w-2/3">
-                    <h2 id="detail-title" class="text-3xl font-bold mb-2"></h2>
-                    <p id="detail-description" class="text-gray-400 mb-6"></p>
-
-                    <!-- Kontainer Video -->
-                    <div class="video-container bg-black rounded-lg mb-6">
-                        <iframe id="detail-video-player" src="" frameborder="0" allowfullscreen></iframe>
-                    </div>
-
-                    <!-- Daftar Episode (jika ada) -->
-                    <div id="episode-list-container">
-                        <!-- Tombol-tombol episode akan dirender di sini -->
-                    </div>
+            return `
+                <div class="ad-slot ad-slot-desktop transition-all duration-300 mt-4 mb-4">
+                    ${adCode}
                 </div>
-            </div>
-        </div>
-    </div>
+            `;
+        }
+
+        /**
+         * Mendapatkan daftar film yang sudah difilter berdasarkan tipe saat ini.
+         */
+        function getFilteredMovies() {
+            if (currentFilterType === 'All') {
+                return mockMovies;
+            }
+            return mockMovies.filter(movie => movie.type === currentFilterType);
+        }
+
+        /**
+         * Membuat HTML untuk satu bagian poster (dengan implementasi pagination).
+         */
+        function createPosterSection(title, movies, sectionId) {
+            const currentPage = paginationState[sectionId];
+            const totalPages = Math.ceil(movies.length / POSTERS_PER_BATCH);
+
+            // Jika tidak ada film, tampilkan pesan
+            if (movies.length === 0) {
+                 return `
+                    <section id="${sectionId}" class="section-movie">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-4 border-blue-500 pb-2">${title}</h2>
+                        <div class="text-center p-10 bg-white rounded-xl shadow-lg">
+                            <p class="text-xl text-gray-600">Maaf, tidak ada konten ${currentFilterType} yang ditemukan di bagian ini.</p>
+                        </div>
+                    </section>
+                `;
+            }
+
+            const startIndex = (currentPage - 1) * POSTERS_PER_BATCH;
+            const endIndex = startIndex + POSTERS_PER_BATCH;
+            
+            let moviesToShow = movies.slice(startIndex, endIndex);
+            
+            // Atasi jika halaman kosong karena filter baru/data sedikit
+            if (moviesToShow.length === 0 && currentPage > 1) {
+                paginationState[sectionId] = totalPages; // Pindah ke halaman terakhir
+                moviesToShow = movies.slice((totalPages - 1) * POSTERS_PER_BATCH, totalPages * POSTERS_PER_BATCH);
+            }
+
+            const postersHtml = moviesToShow.map(movie => {
+                // Logika untuk menampilkan label episode (Hanya untuk Series, Donghua, Anime)
+                const isSeriesType = ['Series', 'Donghua', 'Anime'].includes(movie.type);
+                const episodeLabel = (isSeriesType && movie.totalEpisodes) ? `
+                    <!-- Indikator Jumlah Episode (Pojok Kanan Atas) -->
+                    <div class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-lg shadow-md z-10">
+                        ${movie.totalEpisodes} EPS
+                    </div>
+                ` : '';
+                
+                // PENTING: Menggunakan SLUG di panggilan navigate()
+                return `
+                    <!-- Kontainer Poster -->
+                    <div class="bg-white rounded-xl shadow-xl overflow-hidden transform hover:scale-[1.03] transition duration-300 cursor-pointer relative" onclick="navigate('post', '${movie.slug}')">
+                        
+                        <div class="relative">
+                            <img src="${movie.posterUrl}" alt="Poster ${movie.title}" onerror="this.onerror=null;this.src='https://placehold.co/300x450/424242/ffffff?text=No+Image';" class="w-full h-auto object-cover">
+                            
+                            <!-- RATING - Pojok Kanan Atas (geser ke kiri jika ada label EPS) -->
+                            <div class="absolute top-2 ${isSeriesType && movie.totalEpisodes ? 'left-2' : 'right-2'} bg-yellow-500 text-gray-900 text-sm font-bold px-2 py-1 rounded-full shadow-md z-10">
+                                ⭐ ${movie.rating}
+                            </div>
+
+                            ${episodeLabel}
     
-    <!-- Tempelkan kode Adsterra Social Bar Anda di sini -->
-    <script src="movies.js"></script>
-    <script src="script.js"></script>
-<script type='text/javascript' src='//pl27633652.revenuecpmgate.com/79/ba/cb/79bacb53d815e6ef8c58c6adec366111.js'></script>
+                            <!-- TYPE (Movie/Series/Donghua/Anime) - Pojok Kanan Bawah Image -->
+                            <div class="absolute bottom-2 right-2 bg-blue-600 text-white text-xs font-semibold px-2 py-1 rounded-lg shadow-lg uppercase z-10">
+                                ${movie.type}
+                            </div>
+                        </div>
+    
+                        <div class="p-3 text-center">
+                            <h3 class="font-semibold text-lg truncate">${movie.title}</h3>
+                            <p class="text-sm text-gray-500">${movie.category}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const navButtons = totalPages > 1 ? `
+                <div class="text-center mt-8 mb-4 flex justify-center items-center space-x-4">
+                    <button 
+                        onclick="changePage('${sectionId}', ${currentPage - 1})" 
+                        ${currentPage <= 1 ? 'disabled' : ''}
+                        class="px-6 py-3 text-white font-bold rounded-lg transition duration-300 shadow-xl 
+                            ${currentPage <= 1 ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 transform hover:scale-[1.05]'} "
+                    >
+                        &lt; Kembali
+                    </button>
+                    
+                    <span class="text-lg font-semibold text-gray-700">
+                        Halaman ${currentPage} dari ${totalPages}
+                    </span>
+
+                    <button 
+                        onclick="changePage('${sectionId}', ${currentPage + 1})" 
+                        ${currentPage >= totalPages ? 'disabled' : ''}
+                        class="px-6 py-3 text-white font-bold rounded-lg transition duration-300 shadow-xl 
+                            ${currentPage >= totalPages ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700 transform hover:scale-[1.05]'} "
+                    >
+                        Selanjutnya &gt;
+                    </button>
+                </div>
+            ` : '';
+
+            return `
+                <section id="${sectionId}" class="section-movie">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-4 border-blue-500 pb-2">${title}</h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                        ${postersHtml}
+                    </div>
+                    ${navButtons}
+                </section>
+            `;
+        }
+
+        /**
+         * Mengganti halaman dan memuat film untuk bagian tertentu.
+         */
+        function changePage(sectionId, newPage) {
+            const allMovies = sectionId === 'popular' 
+                ? [...getFilteredMovies()].sort((a, b) => b.views - a.views)
+                : [...getFilteredMovies()].sort((a, b) => b.id - a.id); // Pengurutan "Terbaru" menggunakan ID tertinggi
+                
+            const totalPages = Math.ceil(allMovies.length / POSTERS_PER_BATCH);
+
+            if (newPage >= 1 && newPage <= totalPages) {
+                paginationState[sectionId] = newPage;
+                
+                const sectionElement = document.getElementById(sectionId);
+                if (sectionElement) {
+                    const typeDisplay = currentFilterType === 'All' ? 'Konten' : currentFilterType;
+                    // Memperbarui judul sesuai penjelasan cara kerja 'Konten Terbaru'
+                    const title = sectionId === 'popular' ? `${typeDisplay} Populer` : `${typeDisplay} Terbaru`;
+                    sectionElement.outerHTML = createPosterSection(title, allMovies, sectionId);
+                }
+                window.scrollTo(0, sectionElement.offsetTop - 100); 
+            }
+        }
+
+        /**
+         * Memfilter tampilan berdasarkan tipe konten (Movie, Series, Donghua, Anime, All)
+         * @param {string} type - Tipe yang akan difilter
+         */
+        function filterType(type) {
+            // 1. Reset state filter dan pagination
+            currentFilterType = type;
+            paginationState = { popular: 1, latest: 1 };
+
+            // 2. Render ulang halaman Beranda dengan filter baru
+            renderHome();
+            
+            // 3. Update tampilan tombol kategori aktif
+            const buttons = document.querySelectorAll('.category-btn');
+            buttons.forEach(btn => {
+                if (btn.dataset.type === type) {
+                    // Set tombol aktif: Biru terang
+                    btn.classList.remove('bg-blue-900', 'hover:bg-blue-600');
+                    btn.classList.add('bg-blue-500', 'ring-2', 'ring-blue-200');
+                } else {
+                    // Set tombol tidak aktif: Biru gelap
+                    btn.classList.remove('bg-blue-500', 'ring-2', 'ring-blue-200');
+                    btn.classList.add('bg-blue-900', 'hover:bg-blue-600');
+                }
+            });
+        }
+
+
+        /**
+         * Fungsi Pencarian Film
+         */
+        function searchMovies() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            
+            if (query.trim() === '') {
+                navigate('home');
+                return;
+            }
+
+            // Cari di SEMUA film, abaikan filter tipe saat ini
+            const searchResults = mockMovies.filter(movie => 
+                movie.title.toLowerCase().includes(query) || 
+                movie.category.toLowerCase().includes(query) ||
+                movie.type.toLowerCase().includes(query) 
+            );
+
+            let contentHtml = '';
+            
+            if (searchResults.length > 0) {
+                const postersHtml = searchResults.map(movie => {
+                    const isSeriesType = ['Series', 'Donghua', 'Anime'].includes(movie.type);
+                    const episodeLabel = (isSeriesType && movie.totalEpisodes) ? `
+                        <div class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-lg shadow-md z-10">
+                            ${movie.totalEpisodes} EPS
+                        </div>
+                    ` : '';
+
+                    // PENTING: Menggunakan SLUG di panggilan navigate()
+                    return `
+                        <div class="bg-white rounded-xl shadow-xl overflow-hidden transform hover:scale-[1.03] transition duration-300 cursor-pointer relative" onclick="navigate('post', '${movie.slug}')">
+                            <div class="relative">
+                                <img src="${movie.posterUrl}" alt="Poster ${movie.title}" onerror="this.onerror=null;this.src='https://placehold.co/300x450/424242/ffffff?text=No+Image';" class="w-full h-auto object-cover">
+                                <div class="absolute top-2 ${isSeriesType && movie.totalEpisodes ? 'left-2' : 'right-2'} bg-yellow-500 text-gray-900 text-sm font-bold px-2 py-1 rounded-full shadow-md z-10">
+                                    ⭐ ${movie.rating}
+                                </div>
+                                ${episodeLabel}
+                                <div class="absolute bottom-2 right-2 bg-blue-600 text-white text-xs font-semibold px-2 py-1 rounded-lg shadow-lg uppercase z-10">
+                                    ${movie.type}
+                                </div>
+                            </div>
+                            <div class="p-3 text-center">
+                                <h3 class="font-semibold text-lg truncate">${movie.title}</h3>
+                                <p class="text-sm text-gray-500">${movie.category}</p>
+                            </div>
+                        </div>
+                    `;
+                }).join(''); 
+
+                contentHtml = `
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-4 border-blue-500 pb-2">Hasil Pencarian untuk: "${query}"</h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                        ${postersHtml}
+                    </div>
+                `;
+
+            } else {
+                contentHtml = `
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-4 border-blue-500 pb-2">Hasil Pencarian untuk: "${query}"</h2>
+                    <div class="text-center p-10 bg-white rounded-xl shadow-lg">
+                        <p class="text-xl text-gray-600">Maaf, tidak ada film, series, donghua, atau anime yang ditemukan dengan kata kunci tersebut.</p>
+                        <button onclick="navigate('home')" class="mt-4 px-4 py-2 text-white font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 transition duration-300 shadow-md">
+                            Kembali ke Beranda
+                        </button>
+                    </div>
+                `;
+            }
+
+            mainContent.innerHTML = contentHtml;
+            // PENTING: Jangan ubah hash saat melakukan pencarian agar pengguna bisa menyalin URL pencarian.
+            // window.location.hash = 'search-' + encodeURIComponent(query);
+            window.scrollTo(0, 0); 
+        }
+
+
+        // --- Halaman Beranda (Homepage) ---
+        function renderHome() {
+            const filteredMovies = getFilteredMovies();
+            const typeDisplay = currentFilterType === 'All' ? 'Konten' : currentFilterType;
+
+            // 1. Konten Populer (Diurutkan berdasarkan views)
+            const popularMovies = [...filteredMovies].sort((a, b) => b.views - a.views);
+            const popularSectionHtml = createPosterSection(
+                `${typeDisplay} Populer`, 
+                popularMovies, 
+                'popular'
+            );
+
+            // 2. Konten Terbaru (Diurutkan berdasarkan ID tertinggi - meniru tanggal rilis terbaru)
+            const latestMovies = [...filteredMovies].sort((a, b) => b.id - a.id);
+            const latestSectionHtml = createPosterSection(
+                `${typeDisplay} Terbaru`, 
+                latestMovies, 
+                'latest'
+            );
+
+            const topAds = `
+                <div class="space-y-4 mb-8">
+                    ${createAdSlot('Atas Slot 1')}
+                    ${createAdSlot('Atas Slot 2')}
+                </div>
+            `;
+            
+            const middleAds = `
+                <div class="space-y-4 my-8">
+                    ${createAdSlot('Tengah Slot 1')}
+                    ${createAdSlot('Tengah Slot 2')}
+                </div>
+            `;
+
+            const bottomAds = `
+                <div class="space-y-4 mt-8">
+                    ${createAdSlot('Bawah Slot 1')}
+                    ${createAdSlot('Bawah Slot 2')}
+                </div>
+            `;
+            
+            mainContent.innerHTML = 
+                topAds + 
+                popularSectionHtml + 
+                middleAds +          
+                latestSectionHtml +  
+                bottomAds;
+        }
+        
+        /**
+         * Merender bagian rekomendasi film.
+         */
+        function renderRecommendations(currentMovie) {
+            
+            const recommendations = mockMovies.filter(movie => {
+                // 1. Jangan rekomendasikan film itu sendiri
+                if (movie.id === currentMovie.id) return false; 
+                
+                // 2. Pertahankan rekomendasi tipe yang sama persis
+                return movie.type === currentMovie.type; 
+
+            }).slice(0, 5); // Ambil 5 teratas
+            
+            if (recommendations.length === 0) {
+                return '';
+            }
+
+            // Judul disesuaikan dengan tipe yang sama persis
+            const recommendationTitle = `${currentMovie.type} Serupa`;
+            const movieTypeDisplay = currentMovie.type; 
+            
+            const postersHtml = recommendations.map(movie => {
+                const isSeriesType = ['Series', 'Donghua', 'Anime'].includes(movie.type);
+                const episodeLabel = (isSeriesType && movie.totalEpisodes) ? `
+                    <div class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-1 py-0.5 rounded-lg shadow-md z-10">
+                        ${movie.totalEpisodes} EPS
+                    </div>
+                ` : '';
+                // PENTING: Menggunakan SLUG di panggilan navigate()
+                return `
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-[1.03] transition duration-300 cursor-pointer relative" onclick="navigate('post', '${movie.slug}')">
+                        <div class="relative">
+                            <img src="${movie.posterUrl}" alt="Poster ${movie.title}" onerror="this.onerror=null;this.src='https://placehold.co/300x450/424242/ffffff?text=No+Image';" class="w-full h-auto object-cover">
+                            <div class="absolute top-2 ${isSeriesType && movie.totalEpisodes ? 'left-2' : 'right-2'} bg-yellow-500 text-gray-900 text-xs font-bold px-1 py-0.5 rounded-full shadow-md z-10">
+                                ⭐ ${movie.rating}
+                            </div>
+                            ${episodeLabel}
+                        </div>
+                        <div class="p-2 text-center">
+                            <h4 class="font-semibold text-sm truncate">${movie.title}</h4>
+                            <p class="text-xs text-gray-500">${movie.type}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <section class="mt-10 pt-4 border-t border-gray-200">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">${recommendationTitle}</h3>
+                    <p class="text-sm text-gray-500 mb-4">Mungkin Anda juga menyukai konten ${movieTypeDisplay} ini.</p>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                        ${postersHtml}
+                    </div>
+                </section>
+            `;
+        }
+
+        // --- Halaman Postingan (Post Page) ---
+        // PENTING: Sekarang menerima SLUG sebagai argumen
+        function renderPost(movieSlug) {
+            // Cari film berdasarkan SLUG, bukan ID
+            const movie = mockMovies.find(m => m.slug === movieSlug); 
+
+            if (!movie) {
+                mainContent.innerHTML = '<div class="text-center p-10 text-red-600">Film tidak ditemukan!</div>';
+                return;
+            }
+
+            // Tentukan URL Embed awal dan index awal
+            let initialEmbedUrl = movie.embedCode || placeholderEmbed;
+            let initialEpisodeIndex = -1;
+            let initialEpisodeNum = 0; 
+
+            // Konten yang memiliki episode (Series, Donghua, Anime)
+            const hasEpisodes = (movie.type !== 'Movie') && movie.episodes && movie.episodes.length > 0;
+
+            if (hasEpisodes) {
+                // --- PERUBAHAN UTAMA DI SINI: Muat Episode TERAKHIR (Terbaru) ---
+                const lastEpisodeIndex = movie.episodes.length - 1; 
+                const latestEpisode = movie.episodes[lastEpisodeIndex]; 
+                
+                initialEmbedUrl = latestEpisode.embedUrl;
+                initialEpisodeIndex = lastEpisodeIndex;
+                initialEpisodeNum = latestEpisode.num;
+                // --- AKHIR PERUBAHAN UTAMA ---
+
+            } else if (movie.type === 'Movie') {
+                 initialEpisodeNum = 1; // Anggap film sebagai 'Episode 1' untuk display title
+            }
+
+
+            const topPostAds = `
+                <div class="space-y-4 mb-8">
+                    ${createAdSlot('Post Atas Frame 1')}
+                    ${createAdSlot('Post Atas Frame 2')}
+                </div>
+            `;
+            
+            // Logika untuk tombol navigasi episode (hanya untuk Series/Donghua/Anime)
+            const episodeNavigation = hasEpisodes ? `
+                <div class="flex justify-between items-center bg-gray-100 p-4 rounded-lg shadow-inner mt-4">
+                    <!-- Tombol Kembali -->
+                    <button 
+                        id="prev-episode-btn"
+                        onclick="navigateEpisode(${movie.id}, -1)" 
+                        class="px-5 py-2 font-bold rounded-lg transition duration-300 shadow-lg flex items-center 
+                            ${initialEpisodeIndex === 0 ? 'bg-gray-400 cursor-not-allowed text-gray-700' : 'bg-blue-600 hover:bg-blue-700 text-white transform hover:scale-[1.05]'}
+                            disabled:opacity-50 disabled:cursor-not-allowed"
+                        ${initialEpisodeIndex === 0 ? 'disabled' : ''}
+                    >
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
+                        Kembali
+                    </button>
+
+                    <!-- Judul Episode Aktif -->
+                    <div class="text-center">
+                        <h4 id="episode-title-display" class="font-bold text-lg text-gray-800">
+                            ${movie.title} - Episode ${initialEpisodeNum}
+                        </h4>
+                        <p id="episode-message" class="text-sm text-green-600 font-semibold"></p>
+                    </div>
+
+                    <!-- Tombol Selanjutnya -->
+                    <button 
+                        id="next-episode-btn"
+                        onclick="navigateEpisode(${movie.id}, 1)" 
+                        class="px-5 py-2 font-bold rounded-lg transition duration-300 shadow-lg flex items-center 
+                            ${initialEpisodeIndex === movie.episodes.length - 1 ? 'bg-gray-400 cursor-not-allowed text-gray-700' : 'bg-red-600 hover:bg-red-700 text-white transform hover:scale-[1.05]'}
+                            disabled:opacity-50 disabled:cursor-not-allowed"
+                        ${initialEpisodeIndex === movie.episodes.length - 1 ? 'disabled' : ''}
+                    >
+                        Selanjutnya
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+            ` : ''; 
+
+            // Konten Postingan (Poster, Embed Video, Deskripsi)
+            const postContent = `
+                <article class="bg-white p-6 rounded-xl shadow-2xl">
+                    <h2 class="text-4xl font-bold text-gray-900 mb-6 border-b pb-3">${movie.title}</h2>
+
+                    <!-- Area Poster dan Info Film -->
+                    <div class="md:flex md:space-x-8 mb-8">
+                        <div class="flex-shrink-0 mb-6 md:mb-0">
+                            <img src="${movie.posterUrl}" alt="Poster ${movie.title}" class="w-full max-w-xs h-auto rounded-lg shadow-lg mx-auto md:mx-0">
+                        </div>
+                        <div class="flex-grow">
+                            <h3 class="text-2xl font-semibold mb-3 text-blue-700">Sinopsis</h3>
+                            <p class="text-gray-700 leading-relaxed">${movie.synopsis || 'Sinopsis tidak tersedia.'}</p>
+                            <p class="mt-4 text-sm text-gray-500">
+                                ID Konten: ${movie.id} | 
+                                Kategori: ${movie.category} |
+                                Tipe: <span class="font-bold text-red-600">${movie.type}</span> |
+                                Rating: <span class="font-bold text-yellow-600">${movie.rating}</span>
+                            </p>
+                            ${movie.totalEpisodes ? `<p class="mt-1 text-sm text-gray-500 font-semibold">Total Episode: <span class="text-red-600">${movie.totalEpisodes}</span></p>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Tempat Embed Video (Frame) & Lapisan Iklan -->
+                    <div class="w-full mb-4">
+                        <h3 class="text-2xl font-semibold mb-3 text-blue-700">Tonton</h3> 
+                        <div class="iframe-container">
+                            
+                            <!-- Lapisan Transparan Penuh (Overlay Iklan) -->
+                            <div id="overlay-${movie.id}" 
+                                onclick="handleMonetizationClick('${movie.monetizationLink || '#'}', 'overlay-${movie.id}')"
+                                class="absolute inset-0 z-20 transparent-overlay">
+                            </div>
+                            
+                            <!-- ID 'video-frame' digunakan untuk mengganti video. Menyimpan data-attribute untuk tracking episode -->
+                            <iframe id="video-frame" 
+                                data-movie-id="${movie.id}"
+                                data-current-episode-index="${initialEpisodeIndex}"
+                                src="${initialEmbedUrl}" 
+                                title="Video Player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen 
+                                class="w-full h-full">
+                            </iframe>
+                        </div>
+                    </div>
+
+                    <!-- Area Navigasi Episode dan Catatan Autoplay -->
+                    ${episodeNavigation}
+
+
+                    <!-- Tombol Download dan Daftar Episode (Bawah Frame) -->
+                    <div class="mt-8 mb-8 space-y-6 border-t pt-6">
+                        
+                        <!-- Tombol Download -->
+                        <div class="border-b pb-4">
+                            <h3 class="text-xl font-semibold mb-3 text-red-600">Unduh ${movie.title}</h3>
+                            <!-- MENGGUNAKAN movie.downloadLink (Link File Asli) -->
+                            <a href="${movie.downloadLink || '#link-belum-tersedia'}" target="_blank" 
+                               class="inline-block px-6 py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition duration-300 shadow-lg transform hover:scale-[1.02] 
+                               ${movie.downloadLink ? '' : 'opacity-50 cursor-not-allowed'}" 
+                               ${movie.downloadLink ? '' : 'onclick="event.preventDefault()"'}
+                            >
+                                <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                Unduh Sekarang
+                            </a>
+                            ${!movie.downloadLink ? '<p class="text-sm text-gray-500 mt-2">Link unduhan belum ditambahkan.</p>' : ''}
+                        </div>
+
+                        <!-- Daftar Episode (Tombol Pilihan Langsung) -->
+                        ${hasEpisodes ? `
+                            <div>
+                                <h3 class="text-xl font-semibold mb-3 text-blue-700">Pilih Episode Langsung</h3>
+                                <div class="flex flex-wrap gap-3">
+                                    ${movie.episodes.map((ep, index) => `
+                                        <!-- Tombol Episode - Memanggil fungsi changeEpisode() dengan URL embed dan index episode -->
+                                        <button 
+                                           data-episode-index="${index}"
+                                           onclick="changeEpisode('${ep.embedUrl}', ${index}, '${movie.title}', ${ep.num})" 
+                                           class="episode-btn px-4 py-2 text-sm font-semibold rounded-lg transition duration-200 shadow-md
+                                                ${index === initialEpisodeIndex ? 'bg-blue-600 text-white ring-2 ring-blue-800' : 'bg-blue-100 text-blue-800 hover:bg-blue-600 hover:text-white'}">
+                                            EP ${ep.num}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                    </div>
+                    
+                    <!-- Area Rekomendasi Otomatis -->
+                    ${renderRecommendations(movie)}
+                </article>
+            `;
+
+            const bottomPostAds = `
+                <div class="space-y-4 mt-8">
+                    ${createAdSlot('Post Bawah Frame 1')}
+                    ${createAdSlot('Post Bawah Frame 2')}
+                </div>
+            `;
+
+            mainContent.innerHTML = topPostAds + postContent + bottomPostAds;
+            
+            // Panggil changeEpisode untuk inisialisasi status tombol setelah DOM dimuat
+            // Ini akan memastikan tombol navigasi dan tombol episode di daftar terlihat benar
+            if (hasEpisodes) {
+                const initialEpisode = movie.episodes[initialEpisodeIndex];
+                changeEpisode(initialEpisode.embedUrl, initialEpisodeIndex, movie.title, initialEpisode.num);
+            }
+        }
+
+        /**
+         * FUNGSI BARU: Menentukan halaman mana yang harus dimuat dari URL Hash.
+         */
+        function handleRouting() {
+            const hash = window.location.hash.substring(1); // Hapus '#'
+            
+            if (hash === 'home' || hash === '') {
+                // Jika hash kosong atau #home, kembali ke Beranda
+                navigate('home');
+            } else if (hash.startsWith('post/')) {
+                // Jika hash adalah #post/slug-film, ekstrak slug
+                const movieSlug = hash.substring(5); // Ambil slug setelah 'post/'
+                if (movieSlug.length > 0) {
+                    // Panggil navigate dengan mode 'post' dan SLUG film
+                    navigate('post', movieSlug, false); // Parameter ketiga 'false' menandakan jangan ubah hash lagi
+                } else {
+                    // Jika slug tidak valid, kembali ke beranda
+                    navigate('home');
+                }
+            } else {
+                 // Jika hash tidak dikenal, kembali ke beranda
+                navigate('home');
+            }
+        }
+
+        /**
+         * Fungsi navigasi utama (Diperbarui untuk Direct Link)
+         * @param {string} page - Tipe halaman ('home' atau 'post')
+         * @param {string | null} identifier - SLUG film (untuk 'post') atau null (untuk 'home')
+         * @param {boolean} [updateHash=true] - Apakah akan memperbarui URL hash. Default true.
+         */
+        function navigate(page, identifier = null, updateHash = true) {
+            currentPage = page;
+            
+            let newHash = '';
+
+            if (page === 'home') {
+                renderHome();
+                // Atur hash ke #home
+                newHash = 'home';
+                // Panggil filterType() saat navigasi ke 'home' untuk memastikan tombol kategori ter-highlight
+                filterType(currentFilterType);
+            } else if (page === 'post' && identifier) {
+                // identifier sekarang adalah SLUG
+                renderPost(identifier); 
+                // Atur hash ke #post/slug-film
+                newHash = `post/${identifier}`;
+            }
+            
+            // -----------------------------------------------------
+            // 1. Logika Pembaruan URL Hash (PENTING UNTUK DIRECT LINK)
+            // -----------------------------------------------------
+            if (updateHash && newHash && window.location.hash !== `#${newHash}`) {
+                // Hanya perbarui hash jika hash saat ini berbeda
+                window.location.hash = newHash; 
+            }
+            // -----------------------------------------------------
+            
+            window.scrollTo(0, 0); 
+        }
+
+        // Muat halaman saat dokumen siap
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Tambahkan listener untuk menangani tombol Back/Forward dan muat awal
+            window.addEventListener('hashchange', handleRouting);
+
+            // 2. Lakukan routing awal untuk memuat halaman yang sesuai dari URL (misalnya #post/petualangan-rahasia-di-kota)
+            handleRouting(); 
+        });
+    </script>
+
 </body>
 </html>
-
-
