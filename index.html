@@ -25,9 +25,8 @@
              position: relative;
              width: 100%;
              height: 0;
-             /* PERBAIKAN 1: Menambah tinggi frame video (rasio 16:9) */
-             /* Dari 56.25% menjadi 65% untuk tampilan lebih besar di mobile */
-             padding-bottom: 65%; 
+             /* PERBAIKAN V3: Mengatur ulang ke rasio aspek standar 16:9 (56.25%) untuk kompatibilitas video penuh. */
+             padding-bottom: 56.25%; /* Rasio standar 16:9 */ 
              overflow: hidden;
              border-radius: 0.5rem; /* rounded-lg */
              box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); /* shadow-xl */
@@ -55,6 +54,30 @@
             /* Sedikit kegelapan saat di hover, sebagai feedback visual */
             background-color: rgba(0, 0, 0, 0.05);
         }
+
+        /* --- PERBAIKAN BARU: Judul Poster Multiline untuk Mobile --- */
+        .poster-title {
+            /* Pastikan tinggi maksimum memungkinkan setidaknya 2 baris */
+            min-height: 2.5em; /* 2.5em harus cukup untuk 2 baris teks 0.875rem (text-sm) */
+            max-height: 2.8em;
+            overflow: hidden;
+            display: block;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Batasi maksimal 2 baris */
+            -webkit-box-orient: vertical;
+            font-size: 0.875rem; /* Ukuran font di mobile (text-sm) */
+            line-height: 1.4;
+            margin-bottom: 0.25rem;
+        }
+        /* Override untuk layar tablet ke atas */
+        @media (min-width: 640px) { 
+            .poster-title {
+                font-size: 1rem; /* Ukuran font di desktop (text-base) */
+                min-height: 3em; /* Biarkan sedikit lebih tinggi */
+            }
+        }
+        /* --- AKHIR PERBAIKAN BARU --- */
+
     </style>
 </head>
 <body class="min-h-screen">
@@ -181,41 +204,42 @@
             { 
                 id: 1, 
                 title: "kuntilanak 3 (2022)", 
-                category: "Adventure/Horror", 
+                category: "Aksi/Sci-Fi", 
                 rating: "4.2", 
                 type: "Movie", 
                 views: 9800, 
                 posterUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhmGbaoxhd8L40fhU59nXbBbSwnoRQhQF5QY1DvTNNH0V1ozVyhdgaKSzinobeRkCcj4CZuK8ireNwLkHDm-vYI5mIDfqOYhytPG0cHqTdpTTWY8d8UAh5up-eTq97Hc5CLpcv9N-ym4QPIg-Y_QsHOPJJZ4sdJaaV_2_p9C91i19cimpARv4sfh1AtG9c/s275/Kuntilanak3_film2022_Poster_official.jpeg",
                 synopsis: "Dinda, who is considered strange by the village children because of her strength, accidentally injures Panji and Ambar. She regrets and asks Aunt Donna to register her at the Mata Hati School, so that she can learn to control her power.",
                 monetizationLink: "https://perky-ad.com/vmbeGK", // INI UNTUK OVERLAY (IKLAN)
+              
                 embedCode: "https://www.dailymotion.com/embed/video/x8o9jtq?autoplay=1",
             },
             { 
                 id: 2, 
-                title: "Squid Game Final season", 
-                category: "Drama/Action", 
-                rating: "8.0", 
+                title: "Judul Series Drama Yang Sangat Panjang dan Penuh Emosi", 
+                category: "Drama/Romantis", 
+                rating: "7.9", 
                 type: "Series", 
                 views: 4500, 
-                posterUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHhmgXcuINBgJQo3RqGmxIhFglGR-tyhufC4Jc1F00D1H4g6TBgAn9Ni4-SbEGhtglJSPc7YiSuahin6WrxcY4h23RjDjgaAz0jkVqJK6Se4j55_L1osLP9bsryeDL09AJvawKVYrUNeJwSFwPMJOjBp3GmxtNIlgWgYnO7OuwuUAxalji4ohmiinFh0dw/s1481/squidgame%20season3.jpg",
-            
-                monetizationLink: "https://perky-ad.com/vmbeGK", // INI UNTUK OVERLAY (IKLAN)
-            
-                defaultEmbedUrl: "https://drive.google.com/file/d/1bO2uv_WW4XTPRJ-vhXk6AE2vyr2smrYS/preview", // KONTROL DITAMBAHKAN
-                totalEpisodes: 6, 
+                posterUrl: "https://placehold.co/300x450/8bc34a/ffffff?text=SERIES+2",
+                synopsis: "Mengisahkan perjalanan cinta yang rumit antara seorang dokter dan seorang musisi. Kisah ini dibumbui dengan konflik keluarga dan pilihan karir yang sulit, menunjukkan bahwa cinta sejati membutuhkan pengorbanan yang besar.",
+                monetizationLink: "https://adsterra.com/direct-link-2", // INI UNTUK OVERLAY (IKLAN)
+                downloadLink: "https://drive.google.com/unduhan/series2", // INI UNTUK TOMBOL UNDUH (FILM ASLI)
+                defaultEmbedUrl: "https://www.youtube.com/embed/ep2_1?autoplay=0&controls=1", // KONTROL DITAMBAHKAN
+                totalEpisodes: 7, 
                 episodes: [
-                    { num: 1, embedUrl: "https://drive.google.com/file/d/1bO2uv_WW4XTPRJ-vhXk6AE2vyr2smrYS/preview" }, 
-                    { num: 2, embedUrl: "https://drive.google.com/file/d/1a3QpRzn2RqRUmlzk96pYrst9yOBErvYS/preview" }, 
-                    { num: 3, embedUrl: "https://drive.google.com/file/d/1f2gmc4QampOQxIhUdMdaJ7iDwS9jOkI8/preview" }, 
-                    { num: 4, embedUrl: "https://drive.google.com/file/d/1IhjZPDwVmSzf2p4MG7f2e89rx7JyWnD1/preview" },
-                    { num: 5, embedUrl: "https://drive.google.com/file/d/1rY81t8FcUtSkc-SneD2Ai3d7KR356H9n/preview" },
-                    { num: 6, embedUrl: "https://drive.google.com/file/d/1X3tCFGVxxxtYPLy40NMVYnJXnMHUA0eV/preview" }
-                   
+                    { num: 1, embedUrl: "https://www.youtube.com/embed/ep2_1?autoplay=1&controls=1" }, 
+                    { num: 2, embedUrl: "https://www.youtube.com/embed/ep2_2?autoplay=1&controls=1" }, 
+                    { num: 3, embedUrl: "https://www.youtube.com/embed/ep2_3?autoplay=1&controls=1" }, 
+                    { num: 4, embedUrl: "https://www.youtube.com/embed/ep2_4?autoplay=1&controls=1" },
+                    { num: 5, embedUrl: "https://www.youtube.com/embed/ep2_5?autoplay=1&controls=1" },
+                    { num: 6, embedUrl: "https://www.youtube.com/embed/ep2_6?autoplay=1&controls=1" },
+                    { num: 7, embedUrl: "https://www.youtube.com/embed/ep2_7?autoplay=1&controls=1" }
                 ]
             },
             { 
                 id: 3, 
-                title: "Film Komedi Terbaik", 
+                title: "Film Komedi Terbaik Sepanjang Masa Dengan Banyak Kejutan Lucu", 
                 category: "Komedi", 
                 rating: "9.1", 
                 type: "Movie", 
@@ -228,7 +252,7 @@
             },
             { 
                 id: 4, 
-                title: "Horor Malam Jumat", 
+                title: "Horor Malam Jumat yang Sangat Seram dan Menegangkan", 
                 category: "Horor/Thriller", 
                 rating: "6.5", 
                 type: "Series", 
@@ -247,7 +271,7 @@
             },
             { 
                 id: 5, 
-                title: "Dokumenter Alam", 
+                title: "Dokumenter Alam: Keindahan dan Kehancuran Bumi", 
                 category: "Dokumenter", 
                 rating: "8.8", 
                 type: "Movie", 
@@ -260,7 +284,7 @@
             },
             { 
                 id: 6, 
-                title: "Aksi Balas Dendam", 
+                title: "Aksi Balas Dendam Yang Tidak Terhindarkan Melawan Musuh Lama", 
                 category: "Aksi", 
                 rating: "8.2", 
                 type: "Movie", 
@@ -273,7 +297,7 @@
             },
             { 
                 id: 7, 
-                title: "Dunia Fantasi Series", 
+                title: "Dunia Fantasi Series: Pertarungan Para Penyihir Hebat", 
                 category: "Fantasi", 
                 rating: "9.5", 
                 type: "Series", 
@@ -297,7 +321,7 @@
             },
             { 
                 id: 8, 
-                title: "Kisah Sedih", 
+                title: "Kisah Sedih yang Mengharu Biru Tentang Sebuah Kehilangan", 
                 category: "Drama", 
                 rating: "7.1", 
                 type: "Movie", 
@@ -310,7 +334,7 @@
             },
             { 
                 id: 9, 
-                title: "Pedang Langit Abadi", 
+                title: "Pedang Langit Abadi: Petualangan Kultivasi Tanpa Batas", 
                 category: "Fantasi/Wuxia", 
                 rating: "8.9", 
                 type: "Donghua", 
@@ -338,7 +362,7 @@
             },
             { 
                 id: 10, 
-                title: "Misteri Pembunuhan", 
+                title: "Misteri Pembunuhan Yang Tak Terpecahkan di Kota Kecil", 
                 category: "Thriller", 
                 rating: "7.8", 
                 type: "Movie", 
@@ -351,7 +375,7 @@
             },
             { 
                 id: 11, 
-                title: "Anime Petarung", 
+                title: "Anime Petarung Legendaris: Warisan Sang Pahlawan", 
                 category: "Aksi/Shonen", 
                 rating: "9.3", 
                 type: "Anime", 
@@ -373,7 +397,7 @@
             },
             { 
                 id: 12, 
-                title: "Komedi Gila", 
+                title: "Komedi Gila yang Penuh Kekonyolan dan Drama Kantor Lucu", 
                 category: "Komedi", 
                 rating: "8.3", 
                 type: "Series", 
@@ -395,7 +419,7 @@
             },
             { 
                 id: 13, 
-                title: "Donghua Dunia Kultivasi", 
+                title: "Donghua Dunia Kultivasi Abadi dan Perebutan Kekuatan", 
                 category: "Fantasi/Wuxia", 
                 rating: "8.1", 
                 type: "Donghua", 
@@ -417,7 +441,7 @@
             },
             { 
                 id: 14, 
-                title: "Anime Petualangan", 
+                title: "Anime Petualangan Mencari Harta Karun Terbesar di Dunia", 
                 category: "Petualangan", 
                 rating: "7.5", 
                 type: "Anime", 
@@ -439,7 +463,7 @@
             },
             { 
                 id: 15, 
-                title: "Film Baru Fantasi", 
+                title: "Film Baru Fantasi Epik Pertempuran Antar Galaksi yang Menegangkan", 
                 category: "Fantasi", 
                 rating: "9.0", 
                 type: "Movie", 
@@ -691,8 +715,9 @@
                         </div>
     
                         <div class="p-3 text-center">
-                            <h3 class="font-semibold text-lg truncate">${movie.title}</h3>
-                            <p class="text-sm text-gray-500">${movie.category}</p>
+                            <!-- PERUBAHAN: Menghapus 'truncate' dan menambahkan kelas 'poster-title' -->
+                            <h3 class="font-semibold poster-title text-gray-900">${movie.title}</h3>
+                            <p class="text-xs text-gray-500">${movie.category}</p>
                         </div>
                     </div>
                 `;
@@ -821,8 +846,9 @@
                                 </div>
                             </div>
                             <div class="p-3 text-center">
-                                <h3 class="font-semibold text-lg truncate">${movie.title}</h3>
-                                <p class="text-sm text-gray-500">${movie.category}</p>
+                                <!-- Menggunakan kelas poster-title untuk hasil pencarian juga -->
+                                <h3 class="font-semibold poster-title text-gray-900">${movie.title}</h3>
+                                <p class="text-xs text-gray-500">${movie.category}</p>
                             </div>
                         </div>
                     `;
@@ -1245,4 +1271,3 @@
 
 </body>
 </html>
-
