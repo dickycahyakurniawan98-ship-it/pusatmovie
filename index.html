@@ -1174,7 +1174,90 @@ function changeCategoryPage(type, direction) {
         renderApp(); 
     });
 </script>
+<!-- ==== START: Anti-Inspect / DevTools protection (paste before </body>) ==== -->
+<script>
+/* 1) Pencegahan ringan: nonaktifkan klik kanan & shortcut devtools (untuk pengguna awam) */
+(function(){
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('keydown', e => {
+    if (e.key === 'F12') return e.preventDefault();
+    if (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)) return e.preventDefault();
+    if (e.ctrlKey && e.key === 'U') return e.preventDefault();
+    if (e.ctrlKey && e.shiftKey && e.key === 'C') return e.preventDefault();
+  });
+})();
+</script>
+
+<script>
+/* 2) Deteksi DevTools (gabungan beberapa trik) -> blur & disable interaksi pada #app-content saat terdeteksi */
+(function(){
+  const appEl = () => document.getElementById('app-content');
+  let devtoolsOpen = false;
+
+  // a) Perubahan ukuran viewport (indikator DevTools)
+  let prevInner = window.innerHeight;
+  setInterval(() => {
+    const cur = window.innerHeight;
+    if (Math.abs(prevInner - cur) > 160) onDevToolsDetected();
+    prevInner = cur;
+  }, 700);
+
+  // b) debugger-duration trick
+  setInterval(() => {
+    const start = Date.now();
+    // eslint-disable-next-line no-debugger
+    debugger;
+    if (Date.now() - start > 120) onDevToolsDetected();
+  }, 2000);
+
+  // c) Object getter trick via console.log
+  try {
+    const img = new Image();
+    Object.defineProperty(img, 'id', {
+      get: function() { onDevToolsDetected(); return ''; }
+    });
+    console.log('%c', img);
+  } catch (e) { /* ignore */ }
+
+  function onDevToolsDetected() {
+    if (devtoolsOpen) return;
+    devtoolsOpen = true;
+    const el = appEl();
+    if (el) {
+      el.style.filter = 'blur(8px)';
+      el.style.pointerEvents = 'none';
+      el.style.userSelect = 'none';
+    }
+    if (!document.getElementById('dev-warning')) {
+      const msg = document.createElement('div');
+      msg.id = 'dev-warning';
+      msg.innerText = 'Mode developer terdeteksi — beberapa konten disembunyikan.';
+      Object.assign(msg.style, {
+        position: 'fixed', right: '12px', top: '12px',
+        background: '#111', color: '#fff', padding: '10px 14px',
+        borderRadius: '8px', zIndex: 999999, boxShadow: '0 2px 10px rgba(0,0,0,.5)'
+      });
+      document.body.appendChild(msg);
+    }
+  }
+
+  // Coba restore saat jendela kembali fokus (user mungkin menutup devtools)
+  window.addEventListener('focus', () => {
+    const el = appEl();
+    if (el) {
+      el.style.filter = '';
+      el.style.pointerEvents = '';
+      el.style.userSelect = '';
+    }
+    const w = document.getElementById('dev-warning');
+    if (w) w.remove();
+    devtoolsOpen = false;
+  });
+})();
+</script>
+<!-- ==== END: Anti-Inspect / DevTools protection ==== -->
 
 </body>
 </html>
+
 
