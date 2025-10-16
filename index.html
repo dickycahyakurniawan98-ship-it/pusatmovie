@@ -3,1266 +3,679 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DICAKUN - Situs Film, Series, Donghua, Anime </title>
-    <!-- Memuat Tailwind CSS untuk styling responsif -->
+    <title>DICAKUN - Situs Streaming Film dan Serial</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- === PERBAIKAN: OPEN GRAPH META TAGS (OG) === -->
+    <!-- Ini adalah meta tag yang dibaca oleh Twitter/X, Facebook, dll. untuk membuat pratinjau -->
+    <meta property="og:title" content="DICAKUN - Tonton Film & Serial Gratis Kualitas HD" />
+    <meta property="og:description" content="Streaming film, serial, anime, dan donghua terbaru dengan akses link langsung. Nikmati koleksi lengkap tanpa batas." />
+    <!-- GANTI DENGAN URL GAMBAR LOGO/POSTER BERKUALITAS TINGGI ANDA (Rasio ideal 1.91:1, misal 1200x628) -->
+    <meta property="og:image" content="https://placehold.co/1200x630/dc2626/ffffff?text=DICAKUN+Streaming+Gratis" />
+    <meta property="og:url" content="URL_ANDA_DI_SINI" />
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@NAMA_TWITTER_ANDA">
+    <!-- ============================================== -->
+
     <style>
-        /* Menggunakan font Inter secara default */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f7f7f7;
+        /* Custom styles to ensure the video poster fits correctly */
+        body { font-family: 'Inter', sans-serif; background-color: #0d1117; color: #e6e6e6; }
+        .poster-container {
+            position: relative;
+            padding-top: 150%; /* 2:3 Aspect Ratio (or customize as needed) */
+            overflow: hidden;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
         }
-        /* Custom scrollbar style for better UX on the category bar */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
+        .poster-container:hover {
+            transform: scale(1.02);
         }
-        .no-scrollbar {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
-        }
-        /* Penyesuaian untuk iframe di dalam div relative */
-        .iframe-container {
-             position: relative;
-             width: 100%;
-             height: 0;
-             /* PERBAIKAN V3: Mengatur ulang ke rasio aspek standar 16:9 (56.25%) untuk kompatibilitas video penuh. */
-             padding-bottom: 56.25%; /* Rasio standar 16:9 */ 
-             overflow: hidden;
-             border-radius: 0.5rem; /* rounded-lg */
-             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); /* shadow-xl */
-        }
-        .iframe-container iframe {
+        .poster-img {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            object-fit: cover;
         }
-        /* Style untuk overlay transparan penuh */
-        .transparent-overlay {
-            /* Warna transparan penuh agar tidak terlihat */
-            background-color: transparent; 
-            /* Memastikan lapisan menutupi seluruh frame */
+        
+        .video-wrapper {
+            position: relative;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            border-radius: 0.5rem;
+            overflow: hidden;
+            background-color: #000;
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            /* Pastikan kursor berubah menjadi pointer */
+            border: none;
+        }
+
+        /* Iklan Overlay Transparan Penuh - SELALU 100% TRANSPARAN */
+        .ad-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: transparent; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            /* Tambahkan sedikit efek hover visual untuk feedback, misal: opacity */
-            transition: opacity 0.1s ease;
+            z-index: 10;
         }
-        .transparent-overlay:hover {
-            /* Sedikit kegelapan saat di hover, sebagai feedback visual */
-            background-color: rgba(0, 0, 0, 0.05);
-        }
-
-        /* --- PERBAIKAN BARU: Judul Poster Multiline untuk Mobile --- */
-        .poster-title {
-            /* Pastikan tinggi maksimum memungkinkan setidaknya 2 baris */
-            min-height: 2.5em; /* 2.5em harus cukup untuk 2 baris teks 0.875rem (text-sm) */
-            max-height: 2.8em;
-            overflow: hidden;
-            display: block;
-            display: -webkit-box;
-            -webkit-line-clamp: 2; /* Batasi maksimal 2 baris */
-            -webkit-box-orient: vertical;
-            font-size: 0.875rem; /* Ukuran font di mobile (text-sm) */
-            line-height: 1.4;
-            margin-bottom: 0.25rem;
-        }
-        /* Override untuk layar tablet ke atas */
-        @media (min-width: 640px) { 
-            .poster-title {
-                font-size: 1rem; /* Ukuran font di desktop (text-base) */
-                min-height: 3em; /* Biarkan sedikit lebih tinggi */
-            }
-        }
-        /* --- AKHIR PERBAIKAN BARU --- */
-
     </style>
 </head>
-<body class="min-h-screen">
+<body>
 
-    <!-- Header & Navigasi Utama -->
-    <header class="bg-blue-800 shadow-lg"> 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <!-- Logo/Judul: DICAKUN -->
-            <h1 class="text-3xl font-extrabold text-white tracking-wider">
-                <a href="#home" onclick="navigate('home')" class="hover:text-blue-200 transition duration-300">DICAKUN</a>
-            </h1>
-
-            <!-- Search Bar dan Tombol Navigasi -->
-            <div class="w-full md:w-auto flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-4">
-                
-                <!-- Search Input Group -->
-                <div class="flex w-full md:w-64">
-                    <input 
-                        type="text" 
-                        id="search-input"
-                        placeholder="Cari film atau series..." 
-                        class="p-2 w-full rounded-l-lg focus:ring-blue-400 focus:border-blue-400 border-none text-gray-800 shadow-inner"
-                        onkeydown="if(event.key === 'Enter') searchMovies()"
-                    >
-                    <button 
-                        onclick="searchMovies()" 
-                        class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-r-lg transition duration-300 shadow-md flex items-center justify-center"
-                        aria-label="Tombol Pencarian"
-                    >
-                        <!-- Icon Kaca Pembesar (Inline SVG for simplicity) -->
+<!-- Navbar (Tetap di atas) -->
+<nav class="sticky top-0 z-50 bg-gray-900 shadow-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <div class="flex items-center">
+                <!-- Diperbaiki: Menggunakan navigateTo('home') untuk memastikan URL hash disetel ulang -->
+                <a href="#" onclick="navigateTo('home')" class="flex-shrink-0 text-2xl font-extrabold text-red-500 tracking-wider">
+                    DICAKUN
+                </a>
+                <div class="hidden md:block ml-10 flex space-x-4">
+                    <button onclick="filterContent('Movie')" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Movie</button>
+                    <button onclick="filterContent('Series')" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Serial</button>
+                    <button onclick="filterContent('Donghua')" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Donghua</button>
+                    <button onclick="filterContent('Anime')" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Anime</button>
+                </div>
+            </div>
+            <div class="flex items-center">
+                <div class="relative hidden sm:block">
+                    <input type="text" id="search-input" placeholder="Cari..." class="bg-gray-800 text-white rounded-lg pl-4 pr-10 py-2 focus:ring-red-500 focus:border-red-500 transition duration-150">
+                    <button onclick="performSearch()" class="absolute right-0 top-0 mt-2 mr-3 text-gray-400 hover:text-white">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </button>
                 </div>
-                
-                <!-- Tombol Beranda -->
-                <button onclick="navigate('home')" class="px-4 py-2 w-full md:w-auto text-white font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 transition duration-300 shadow-md">
-                    Beranda
+                <!-- Mobile Menu Button (Hamburger) -->
+                <button id="mobile-menu-button" type="button" class="ml-2 md:hidden bg-gray-800 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+                    <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
                 </button>
             </div>
         </div>
+    </div>
 
-        <!-- BILAH KATEGORI BARU (Di bawah header, responsif) -->
-        <div class="bg-blue-700 w-full shadow-inner">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div id="category-bar" class="flex overflow-x-auto whitespace-nowrap py-2 space-x-3 no-scrollbar">
-                    <!-- Tombol Home/Semua -->
-                    <button 
-                        onclick="filterType('All')" 
-                        class="category-btn px-4 py-1.5 text-sm font-medium rounded-full transition duration-200 shadow-md flex-shrink-0 bg-blue-500 text-white hover:bg-blue-400"
-                        data-type="All"
-                    >
-                        Semua Konten
-                    </button>
-                    <!-- Tombol Movie -->
-                    <button 
-                        onclick="filterType('Movie')" 
-                        class="category-btn px-4 py-1.5 text-sm font-medium rounded-full transition duration-200 shadow-md flex-shrink-0 bg-blue-900 text-white hover:bg-blue-600"
-                        data-type="Movie"
-                    >
-                        Movie
-                    </button>
-                    <!-- Tombol Series -->
-                    <button 
-                        onclick="filterType('Series')" 
-                        class="category-btn px-4 py-1.5 text-sm font-medium rounded-full transition duration-200 shadow-md flex-shrink-0 bg-blue-900 text-white hover:bg-blue-600"
-                        data-type="Series"
-                    >
-                        Series TV
-                    </button>
-                    <!-- Tombol Donghua (Ditambahkan) -->
-                    <button 
-                        onclick="filterType('Donghua')" 
-                        class="category-btn px-4 py-1.5 text-sm font-medium rounded-full transition duration-200 shadow-md flex-shrink-0 bg-blue-900 text-white hover:bg-blue-600"
-                        data-type="Donghua"
-                    >
-                        Donghua
-                    </button>
-                    <!-- Tombol Anime (Ditambahkan) -->
-                    <button 
-                        onclick="filterType('Anime')" 
-                        class="category-btn px-4 py-1.5 text-sm font-medium rounded-full transition duration-200 shadow-md flex-shrink-0 bg-blue-900 text-white hover:bg-blue-600"
-                        data-type="Anime"
-                    >
-                        Anime
-                    </button>
-                    <!-- Tombol akan bergeser (scrollable) di mobile -->
-                </div>
-            </div>
+    <!-- Mobile Menu (Hidden by default) -->
+    <div class="md:hidden hidden" id="mobile-menu">
+        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <input type="text" id="mobile-search-input" placeholder="Cari..." class="w-full bg-gray-800 text-white rounded-lg pl-4 pr-10 py-2 mb-2 focus:ring-red-500 focus:border-red-500 transition duration-150">
+            <button onclick="performSearch(true)" class="block w-full text-white bg-red-600 hover:bg-red-700 px-3 py-2 rounded-md text-base font-medium transition duration-150">Cari</button>
+            <button onclick="filterContent('Movie')" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Movie</button>
+            <button onclick="filterContent('Series')" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Serial</button>
+            <button onclick="filterContent('Donghua')" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Donghua</button>
+            <button onclick="filterContent('Anime')" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Anime</button>
         </div>
-        <!-- AKHIR BILAH KATEGORI -->
+    </div>
+</nav>
 
-    </header>
+<!-- Konten Utama (Beranda / Pemutar) -->
+<main id="app-content" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"></main>
 
-    <!-- Konten Utama -->
-    <main id="main-content" class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-        <!-- Konten akan dimuat di sini oleh JavaScript -->
-    </main>
+<!-- Modal for messages (instead of alert) -->
+<div id="message-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-[100] flex items-center justify-center">
+    <div class="bg-gray-800 p-6 rounded-lg shadow-2xl max-w-sm w-full">
+        <h3 class="text-xl font-bold mb-3 text-red-500">Pesan</h3>
+        <p id="message-text" class="text-gray-300 mb-4"></p>
+        <button onclick="closeModal()" class="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition duration-150">Tutup</button>
+    </div>
+</div>
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white mt-12 py-6">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <p>&copy; 2024 DICAKUN. Semua Hak Cipta Dilindungi.</p>
-        </div>
-    </footer>
+<script>
+    // --- Variabel Global (Hanya untuk Cache dan Paginasi) ---
+    let currentMovie = null; 
+    let currentEpisode = 1;
 
-    <!-- Logika JavaScript -->
-    <script>
-        // PERBAIKAN 2: Tambahkan parameter controls=1 untuk memastikan kontrol YouTube muncul di frame.
-        const placeholderEmbed = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0&controls=1";
+    // PAGINATION STATE
+    const PAGE_SIZE = 6;
+    let latestPage = 1;
+    let popularPage = 1;
 
-        // --- FUNGSI UTILITY BARU: SLUGIFY ---
-        function slugify(text) {
-            return text.toString().toLowerCase()
-                .replace(/\s+/g, '-')           // Ganti spasi dengan tanda hubung
-                .replace(/[^\w\-]+/g, '')       // Hapus semua karakter non-kata
-                .replace(/\-\-+/g, '-')         // Ganti tanda hubung ganda dengan satu
-                .replace(/^-+/, '')             // Hapus tanda hubung dari awal
-                .replace(/-+$/, '');            // Hapus tanda hubung dari akhir
-        }
-        // --- AKHIR FUNGSI UTILITY BARU: SLUGIFY ---
+    // Data dummy untuk Postingan
+    const dummyData = [
+        // --- MOVIE (Tidak perlu episodesData) ---
+        { 
+            id: 1, 
+            title: 'Black Clover: Sword of the Wizard King', 
+            type: 'Movie', 
+            rating: 8.5, 
+            views: 950000, 
+            imageUrl: 'https://placehold.co/300x450/1e40af/ffffff?text=BC+Movie', 
+            latestEpisode: null, 
+            totalEpisodes: 1, 
+            embed: { youtube: 'dQw4w9WgXcQ' }, 
+            downloadLink: 'link_download_movie_bc' 
+        },
+        // --- ANIME (Menggunakan episodesData) ---
+        { 
+            id: 2, 
+            title: 'Attack on Titan Final Season', 
+            type: 'Anime', 
+            rating: 9.1, 
+            views: 1200000, 
+            imageUrl: 'https://placehold.co/300x450/6b7280/ffffff?text=AOT+Series', 
+            latestEpisode: 2, 
+            totalEpisodes: 28, 
+            episodesData: [
+                { episode: 1, embed: { youtube: 'ID_YOUTUBE_AOT_EP1' } },
+                { episode: 2, embed: { dailymotion: 'ID_DAILYMOTION_AOT_EP2' } },
+            ],
+            downloadLink: 'link_download_series_aot' 
+        },
+        // --- DONGHUA (Menggunakan episodesData) ---
+        { 
+            id: 3, 
+            title: 'Battle Through the Heavens S5', 
+            type: 'Donghua', 
+            rating: 8.8, 
+            views: 750000, 
+            imageUrl: 'https://placehold.co/300x450/dc2626/ffffff?text=BTTH+S5', 
+            latestEpisode: 5, 
+            totalEpisodes: 52, 
+            episodesData: [
+                { episode: 1, embed: { youtube: 'ID_YOUTUBE_BTTH_EP1' } },
+                { episode: 2, embed: { youtube: 'ID_YOUTUBE_BTTH_EP2' } },
+                { episode: 3, embed: { youtube: 'ID_YOUTUBE_BTTH_EP3' } },
+                { episode: 4, embed: { youtube: 'ID_YOUTUBE_BTTH_EP4' } },
+                { episode: 5, embed: { youtube: 'ID_YOUTUBE_BTTH_EP5' } },
+            ],
+            downloadLink: 'link_download_donghua_btth' 
+        },
+        // --- SERIES (Menggunakan episodesData) ---
+        { 
+            id: 4, 
+            title: 'The Witcher', 
+            type: 'Series', 
+            rating: 8.2, 
+            views: 1100000, 
+            imageUrl: 'https://placehold.co/300x450/065f46/ffffff?text=The+Witcher', 
+            latestEpisode: 8, 
+            totalEpisodes: 8, 
+            episodesData: [
+                { episode: 1, embed: { youtube: 'gC4gnTy6l9c' } },
+                { episode: 2, embed: { youtube: 'gC4gnTy6l9c' } }, 
+                { episode: 8, embed: { youtube: 'gC4gnTy6l9c' } },
+            ],
+            downloadLink: 'link_download_series_witcher' 
+        },
+        // --- MOVIE ---
+        { 
+            id: 5, 
+            title: 'Spider-Man: No Way Home', 
+            type: 'Movie', 
+            rating: 7.8, 
+            views: 500000, 
+            imageUrl: 'https://placehold.co/300x450/1e3a8a/ffffff?text=Spider-Man', 
+            latestEpisode: null, 
+            totalEpisodes: 1, 
+            embed: { youtube: 'JfVOs4VSpmA' }, 
+            downloadLink: 'link_download_movie_spiderman' 
+        },
+        // --- ANIME ---
+        { 
+            id: 6, 
+            title: 'Jujutsu Kaisen Season 2', 
+            type: 'Anime', 
+            rating: 9.0, 
+            views: 850000, 
+            imageUrl: 'https://placehold.co/300x450/f97316/ffffff?text=JJK+S2', 
+            latestEpisode: 1, 
+            totalEpisodes: 24, 
+            episodesData: [
+                { episode: 1, embed: { dailymotion: 'x8f1t0p' } },
+            ],
+            downloadLink: 'link_download_series_jjk' 
+        },
+        // Tambahkan beberapa dummy lagi untuk demonstrasi paginasi
+        { id: 7, title: 'Extra Post 1', type: 'Movie', rating: 7.0, views: 300000, imageUrl: 'https://placehold.co/300x450/333333/ffffff?text=Extra+1', latestEpisode: null, totalEpisodes: 1, embed: { youtube: 'gC4gnTy6l9c' }, downloadLink: '' },
+        { id: 8, title: 'Extra Post 2', type: 'Series', rating: 7.5, views: 150000, imageUrl: 'https://placehold.co/300x450/444444/ffffff?text=Extra+2', latestEpisode: 3, totalEpisodes: 10, episodesData: [], downloadLink: '' },
+        { id: 9, title: 'Extra Post 3', type: 'Donghua', rating: 6.8, views: 700000, imageUrl: 'https://placehold.co/300x450/555555/ffffff?text=Extra+3', latestEpisode: 1, totalEpisodes: 1, episodesData: [], downloadLink: '' },
+        { id: 10, title: 'Extra Post 4', type: 'Anime', rating: 9.5, views: 1000000, imageUrl: 'https://placehold.co/300x450/666666/ffffff?text=Extra+4', latestEpisode: 10, totalEpisodes: 10, episodesData: [], downloadLink: '' },
+        { id: 11, title: 'Extra Post 5', type: 'Movie', rating: 8.1, views: 400000, imageUrl: 'https://placehold.co/300x450/777777/ffffff?text=Extra+5', latestEpisode: null, totalEpisodes: 1, embed: { youtube: 'gC4gnTy6l9c' }, downloadLink: '' },
+        { id: 12, title: 'Extra Post 6', type: 'Series', rating: 7.9, views: 200000, imageUrl: 'https://placehold.co/300x450/888888/ffffff?text=Extra+6', latestEpisode: 2, totalEpisodes: 5, episodesData: [], downloadLink: '' },
+        { id: 13, title: 'Extra Post 7', type: 'Donghua', rating: 9.2, views: 600000, imageUrl: 'https://placehold.co/300x450/999999/ffffff?text=Extra+7', latestEpisode: 4, totalEpisodes: 4, episodesData: [], downloadLink: '' },
+    ];
+    
+    // --- Fungsi Utilitas Navigasi Berbasis URL ---
 
+    function showModal(message) {
+        document.getElementById('message-text').textContent = message;
+        document.getElementById('message-modal').classList.remove('hidden');
+    }
 
-        const mockMovies = [
-            { 
-                id: 1, 
-                title: "kuntilanak 3 (2022)", 
-                category: "Horror/Adventure", 
-                rating: "4.2", 
-                type: "Movie", 
-                views: 198, 
-                posterUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhmGbaoxhd8L40fhU59nXbBbSwnoRQhQF5QY1DvTNNH0V1ozVyhdgaKSzinobeRkCcj4CZuK8ireNwLkHDm-vYI5mIDfqOYhytPG0cHqTdpTTWY8d8UAh5up-eTq97Hc5CLpcv9N-ym4QPIg-Y_QsHOPJJZ4sdJaaV_2_p9C91i19cimpARv4sfh1AtG9c/s275/Kuntilanak3_film2022_Poster_official.jpeg",
-                synopsis: "Dinda, who is considered strange by the village children because of her strength, accidentally injures Panji and Ambar. She regrets and asks Aunt Donna to register her at the Mata Hati School, so that she can learn to control her power.",
-                monetizationLink: "https://perky-ad.com/vmbeGK", // INI UNTUK OVERLAY (IKLAN)
-              
-                embedCode: "https://www.dailymotion.com/embed/video/x8o9jtq?autoplay=1",
-            },
-            { 
-                id: 2, 
-                title: "Komang", 
-                category: "Romance/Drama", 
-                rating: "7.4", 
-                type: "Movie", 
-                views: 200, 
-                posterUrl: "https://i.imgur.com/TWBTVIz.png",
-                synopsis: "Ode, pemuda asal Buton, jatuh cinta pada Ade, seorang perantau asal Bali. Awalnya, hubungan mereka berjalan mulus, bahkan tampak indah, seolah dunia milik mereka..",
-                monetizationLink: "https://perky-ad.com/vmbeGK", // INI UNTUK OVERLAY (IKLAN)
-                embedCode: "https://www.dailymotion.com/embed/video/x9q6hyg?autoplay=1", // KONTROL DITAMBAHKAN
-            },
-            { 
-                id: 3, 
-                title: "Agak laen", 
-                category: "Comedy/Drama", 
-                rating: "7.6", 
-                type: "Movie", 
-                views: 200, 
-                posterUrl: "https://i.imgur.com/d04fZOe.png",
-                synopsis: "Seorang pria tua meninggal dunia di wahana rumah hantu yang gagal. Para operator menguburkan jasadnya di lokasi, menjadikannya objek wisata populer.",
-                monetizationLink: "https://perky-ad.com/vmbeGK", // INI UNTUK OVERLAY (IKLAN)
-                embedCode: "https://www.dailymotion.com/embed/video/x9pqz88?autoplay=1", // KONTROL DITAMBAHKAN
-            },
-            { 
-                id: 4, 
-                title: "Rumah Untuk Alie", 
-                category: "Drama", 
-                rating: "5.6", 
-                type: "Movie", 
-                views: 201, 
-                posterUrl: "https://i.imgur.com/ZFLVKvY.png",
-                synopsis: "Anak bungsunya bernama Alie Ishala Samantha yang berjuang untuk mendapatkan penerimaan dari keluarganya.",
-                monetizationLink: "https://perky-ad.com/vmbeGK", // INI UNTUK OVERLAY (IKLAN)
-                embedCode: "https://www.dailymotion.com/embed/video/x9qaxi6?autoplay=1", // KONTROL DITAMBAHKAN
-            },
-            { 
-                id: 5, 
-                title: "MISS BALA", 
-                category: "Drama", 
-                rating: "7.6", 
-                type: "Movie", 
-                views: 202, 
-                posterUrl: "https://i.imgur.com/gozMBvs.png",
-                synopsis: "Gloria menemukan kekuatan yang tak pernah ia duga ketika ia terjerumus ke dalam dunia kejahatan lintas batas yang berbahaya. Bertahan hidup membutuhkan seluruh kecerdikan, daya cipta, dan kekuatannya.",
-                monetizationLink: "https://perky-ad.com/vmbeGK", // INI UNTUK OVERLAY (IKLAN)
-                embedCode: "https://drive.google.com/file/d/1BOJvv-IL68HYoifBoZbEFqYX8MNjEgAW/preview", // KONTROL DITAMBAHKAN
-            },
-            { 
-                id: 6, 
-                title: "MAI", 
-                category: "Drama/Romance", 
-                rating: "6.8", 
-                type: "Movie", 
-                views: 201, 
-                posterUrl: "https://i.imgur.com/MDiJpIj.jpeg",
-                synopsis: "Dihantui masa lalu yang gelisah, Mai disambut fajar baru ketika ia dengan enggan berteman dengan seorang pria yang dikenalnya sebagai wanita tetangga. Namun, ketika masa lalunya kembali menghantuinya hari ini, apa yang akan terjadi pada hari esoknya?",
-                monetizationLink: "https://perky-ad.com/vmbeGK", // INI UNTUK OVERLAY (IKLAN)
-                embedCode: "https://drive.google.com/file/d/1o8y5rWkekmRKVGoPzbqn0xdXObiTkbwB/preview", // KONTROL DITAMBAHKAN
-            },
-            { 
-                id: 7, 
-                title: "BALERINA", 
-                category: "Drama/Action", 
-                rating: "6.3", 
-                type: "Movie", 
-                views: 205, 
-                posterUrl: "https://i.imgur.com/TgGUJPi.jpeg",
-                synopsis: "Berduka atas kehilangan sahabat yang tidak dapat dilindunginya, seorang mantan pengawal berusaha memenuhi keinginan terakhir sahabatnya: balas dendam yang manis.",
-                monetizationLink: "https://perky-ad.com/vmbeGK", // INI UNTUK OVERLAY (IKLAN)
-                embedCode: "https://drive.google.com/file/d/1s4Kdxq5tVsJ-DwhAoNnhzYnHUun6WMGA/preview", // KONTROL DITAMBAHKAN
-            },
-            { 
-                id: 8, 
-                title: "Heart of Stone 2023", 
-                category: "Drama/Romance", 
-                rating: "5.7", 
-                type: "Movie", 
-                views: 206, 
-                posterUrl: "https://i.imgur.com/9EZrEPX.jpeg",
-                synopsis: "Seorang agen intelijen dari badan penjaga perdamaian global yang misterius berlomba untuk menghentikan seorang peretas yang ingin mencuri senjata paling berharga dan berbahaya milik badan tersebut.",
-                monetizationLink: "https://perky-ad.com/vmbeGK", // INI UNTUK OVERLAY (IKLAN)
-                embedCode: "https://drive.google.com/file/d/188cPh5n9I3B8wAH8hEKdB4squ0tnKHsx/preview", // KONTROL DITAMBAHKAN
-            },
-            { 
-                id: 9, 
-                title: "Love Untangled (2025)", 
-                category: "Drama/Romance", 
-                rating: "7.1", 
-                type: "Movie", 
-                views: 207, 
-                posterUrl: "https://i.imgur.com/Q9n9hzw.jpeg",
-                synopsis: "Mengikuti Park Se-ri yang berusia 19 tahun saat ia berencana untuk meluruskan rambutnya yang selalu kusut sebelum membuat pengakuan yang mengubah hidupnya, sembari terlibat dengan murid pindahan Han Yun-seok.",
-                monetizationLink: "https://perky-ad.com/vmbeGK", // INI UNTUK OVERLAY (IKLAN)
-                embedCode: "https://drive.google.com/file/d/1rAP8nx_uqI7oJimajWRmIdCdm7YGBlgt/preview", // KONTROL DITAMBAHKAN
-            },
-            { 
-                id: 10, 
-                title: "Purple Hearts", 
-                category: "Drama/Romance", 
-                rating: "6.7", 
-                type: "Movie", 
-                views: 208, 
-                posterUrl: "https://i.imgur.com/PDsHSIS.jpeg",
-                synopsis: "Meskipun mereka memiliki banyak perbedaan, Cassie, seorang penyanyi-penulis lagu yang sedang berjuang, dan Luke, seorang Marinir yang bermasalah, setuju untuk menikah semata-mata demi keuntungan militer, tetapi ketika tragedi terjadi, garis antara yang nyata dan yang pura-pura mulai kabur.",
-                monetizationLink: "https://perky-ad.com/vmbeGK", // INI UNTUK OVERLAY (IKLAN)
-                embedCode: "https://drive.google.com/file/d/1empurwICAFJUMOokAQBwgsEcuLiGFbSv/preview", // KONTROL DITAMBAHKAN
-            },
-            { 
-                id: 11, 
-                title: "Norma: Antara Mertua dan Menantu (2025)", 
-                category: "Drama/Romance", 
-                rating: "5.6", 
-                type: "Movie", 
-                views: 209, 
-                posterUrl: "https://i.imgur.com/93UpMuD.jpeg",
-                synopsis: "Kehancuran sebuah rumah tangga memang menimbulkan rasa sakit hati, apalagi jika penyebabnya adalah pengkhianatan Ibu Mertua dan Menantu Laki-laki.",
-                monetizationLink: "https://perky-ad.com/vmbeGK", // INI UNTUK OVERLAY (IKLAN)
-                embedCode: "https://gdplayer.to/embed/?Uzg1ZlZCMWRyMTNObjlBa0p4d0ovRm9OTGhWdysxRkV3Vm1iN0k4b2xIWkZmMVNxRFpUYk5HbjJ5VG1vRVZBcXJ0eUFkamZQOUFuZ3pyK0hDWm9vN3M5Ujh4dHZJNTNhU2RqSTl4YmJ6bWJ3YzdlRnd2NEtDd1VFYW9rUm9JelJHSzAvenZ0aVA2NVdqbjhRTnZmL2l3PT0", // KONTROL DITAMBAHKAN
-            },
-            { 
-                id: 12, 
-                title: "Tabayyun (2025)", 
-                category: "Drama/Romance", 
-                rating: "6.6", 
-                type: "Movie", 
-                views: 210, 
-                posterUrl: "https://i.imgur.com/9rhKxZo.jpeg",
-                synopsis: "Suka duka seorang ibu tunggal bernama Zalina. Karena latar belakang ayah putranya, Arka, tidak jelas, Zalina menjadi bahan gosip di kantor.",
-                monetizationLink: "https://perky-ad.com/vmbeGK", // INI UNTUK OVERLAY (IKLAN)
-                embedCode: "https://drive.google.com/file/d/1IRnPDZJ1EpTkDhmByFDnnPTEaKOX8T4R/preview", // KONTROL DITAMBAHKAN
-            },
-            { 
-                id: 13, 
-                title: "Pengepungan di Bukit Duri (2025)", 
-                category: "Drama/Action", 
-                rating: "6.6", 
-                type: "Movie", 
-                views: 211, 
-                posterUrl: "https://i.imgur.com/VS0stdU.jpeg",
-                synopsis: "Sekolah khusus untuk anak-anak bermasalah. Seorang guru yang bertekad mendisiplinkan para siswanya. Di sini, para guru tidak hanya harus mengajar, tetapi juga harus bertahan dari serangan mematikan para siswanya.",
-                monetizationLink: "https://perky-ad.com/vmbeGK", // INI UNTUK OVERLAY (IKLAN)
-                embedCode: "https://drive.google.com/file/d/1BOJvv-IL68HYoifBoZbEFqYX8MNjEgAW/preview", // KONTROL DITAMBAHKAN
-            },
-            { 
-                id: 14, 
-                title: "Pabrik Gula (2025)", 
-                category: "Drama/Horror", 
-                rating: "5.7", 
-                type: "Movie", 
-                views: 212, 
-                posterUrl: "https://i.imgur.com/8EuTmDC.jpeg",
-                synopsis: "Mengikuti sekelompok buruh musiman yang datang ke pabrik gula tua di pedesaan untuk bekerja selama musim panen.",
-                monetizationLink: "https://perky-ad.com/vmbeGK", // INI UNTUK OVERLAY (IKLAN)
-                embedCode: "https://drive.google.com/file/d/1fyp3c8tGAX8hrpzuhwl4Gg5Eu7mZebl7/preview", // KONTROL DITAMBAHKAN
-            },
-            { 
-                id: 15, 
-                title: "Perang Kota (2025)", 
-                category: "Drama/Action", 
-                rating: "6.5", 
-                type: "Movie", 
-                views: 214, 
-                posterUrl: "https://i.imgur.com/h006fQE.jpeg",
-                synopsis: "A 35-year-old former fighter and violinist devises a plan to blow up a movie theater, a gathering place for British NICA officials and the Dutch.",
-                monetizationLink: "https://perky-ad.com/vmbeGK", // INI UNTUK OVERLAY (IKLAN)
-                embedCode: "https://gdplayer.to/embed/?NTI3TzBMUjNIYXI3MUYrQmlrNG5haFprWFpOYTkyQ1Q4YlhyMWdrMDQyZXlKUENua3gvTmhuMFBkVHA5OHdLVDliZVhuOWdqVUpPcGNlRWVQZ29Ma3pjNG5acGlmN2lKc09mT3pNekI2cXgrcnplN2Z5WUlOTlBtelZvMHNFZHhoVkd1S3c0VEZMTTNxekZ0VUtsUEt3PT0", // KONTROL DITAMBAHKAN
-            },
-            { 
-                id: 16, 
-                title: "Asthram (2025)", 
-                category: "Crimine", 
-                rating: "6.5", 
-                type: "Movie", 
-                views: 215, 
-                posterUrl: "https://i.imgur.com/u8o77dr.jpeg",
-                synopsis: "Detektif Akilan menyelidiki serangkaian kasus bunuh diri yang tidak biasa di mana korbannya memiliki luka tusuk. Bermitra dengan Sumanth, ia mengungkap pola-pola mengganggu yang mengarah pada sesuatu yang lebih jahat.",
-                monetizationLink: "https://perky-ad.com/vmbeGK", // INI UNTUK OVERLAY (IKLAN)
-                embedCode: "https://geo.dailymotion.com/player/xjbbc.html?video=k5Sst1mtcdpjq1DQftS", // KONTROL DITAMBAHKAN
-            },
-            { 
-                id: 17, 
-                title: "ELIO 2025", 
-                category: "Drama/Comedy", 
-                rating: "6.8", 
-                type: "Movie", 
-                views: 216, 
-                posterUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjTR3laV3DcUPEkN5Skewm0p_eGG9fBcoznYTexzyNg7INrUZuBbOcU-mvQXtQq2KN3x41NNj8ktgfX8lMfkTQDu5d5JDUhbgwiWg-MN4HyyI58CumqYKgFE3sDiVoTykXi_3XHIIIoMvHR5gE9g345RwsfJpG6bgS_lzBBc0mCoJjH6hUGOmkkaEQjpQ-j/s1481/MV5BOWE5ZDMyMWEtOTZjMi00YzFhLWE4OTEtNDc3MDMzZjFmMmIzXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
-                synopsis: "L'undicenne Elio si ritrova trasportato attraverso la galassia e scambiato per l'ambasciatore intergalattico del pianeta Terra.",
-                monetizationLink: "https://perky-ad.com/vmbeGK", // INI UNTUK OVERLAY (IKLAN)
-                downloadLink: "https://sfl.gl/gs7S12P", // INI UNTUK TOMBOL UNDUH (FILM ASLI)
-                embedCode: "https://drive.google.com/file/d/1JrKUq1QtvJPZM1jeBRQpooERMekBvyRl/preview", // KONTROL DITAMBAHKAN
-            },
-            { 
-                id: 18, 
-                title: "The Super Mario Bross", 
-                category: "Drama", 
-                rating: "7.0", 
-                type: "Movie", 
-                views: 217, 
-                posterUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgcNc7bBUWemKyviDtHAGMLNAP9Krae8ucAPxHjyneJvqZVZv4xVwnIWlVfo9ErnMre1A9ASN8XgOCSiXJPIXJc_rHGX4A5DnWfLQ-VnT3i4XSoWJAtwBgYzoGEQ6xd3BrtZSOE0pVLiQR97JONuqwA2tYT4C7MxTj8f7_fq1uLL-dXozqFvYRBVaOq2slO/s1477/MV5BOGZlN2EzOTYtMzUzOS00NTM3LTg0MTQtZDVjZGM4YmJlNWNhXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
-                synopsis: "Un idraulico di nome Mario viaggia attraverso un labirinto sotterraneo con suo fratello Luigi, cercando di salvare una principessa catturata.",
-                monetizationLink: "https://perky-ad.com/vmbeGK", // INI UNTUK OVERLAY (IKLAN)
-                downloadLink: "https://sfl.gl/UXK6DaY", // INI UNTUK TOMBOL UNDUH (FILM ASLI)
-                embedCode: "https://drive.google.com/file/d/1kVROeFbKty5FKhKNzUCFhFclX7JgkICm/preview", // KONTROL DITAMBAHKAN
-            },
-            { 
-                id: 19, 
-                title: "Ipar Adalah Maut", 
-                category: "Drama/Romance", 
-                rating: "7.0", 
-                type: "Movie", 
-                views: 218, 
-                posterUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEigDNiXQfAh6peU0-gDr9AdDbkMcrDcAJmS43StYo-iuuSgwRokW7n3Bnx76TxfrVlj9XskEuqQoX_kheucC22CYNwN-RjOr5d_gd8dcPTeMVrAsN2Pwb6887H7e3K2W7MmF5Acb9hsfpHBR1U5xMKkGg1JHlIgN4JwvULi6_ChOTES9cVoIM0UlvcD9twA/s1250/Ipar%20Adalah%20Maut.jpg",
-                synopsis: "Keluarga yang awalnya berasal dari Nisa dan Aris akan bertemu dengan saudara-saudara kecil di Nisa yang hidup bersama mereka.",
-                monetizationLink: "https://perky-ad.com/vmbeGK", // INI UNTUK OVERLAY (IKLAN)
-                embedCode: "https://www.dailymotion.com/embed/video/x9q6j80?autoplay=1", // KONTROL DITAMBAHKAN
-            },
-            { 
-                id: 20, 
-                title: "Squid Game Final season", 
-                category: "Drama/Romantis", 
-                rating: "7.9", 
-                type: "Series", 
-                views: 219, 
-                posterUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHhmgXcuINBgJQo3RqGmxIhFglGR-tyhufC4Jc1F00D1H4g6TBgAn9Ni4-SbEGhtglJSPc7YiSuahin6WrxcY4h23RjDjgaAz0jkVqJK6Se4j55_L1osLP9bsryeDL09AJvawKVYrUNeJwSFwPMJOjBp3GmxtNIlgWgYnO7OuwuUAxalji4ohmiinFh0dw/s1481/squidgame%20season3.jpg",
-                synopsis: "Gi-hun kembali ke permainan mematikan untuk menghancurkan sistem dari dalam. Sementara Front Man menghadapi tekanan dari para VIP, rahasia lama mulai terungkap. Pertarungan moral, pengkhianatan, dan pengorbanan besar menutup kisah kelam ini dengan akhir yang tragis namun penuh makna",
-                monetizationLink: "https://perky-ad.com/vmbeGK", // INI UNTUK OVERLAY (IKLAN)
-                defaultEmbedUrl: "https://drive.google.com/file/d/1bO2uv_WW4XTPRJ-vhXk6AE2vyr2smrYS/preview", // KONTROL DITAMBAHKAN
-                totalEpisodes: 6, 
-                episodes: [
-                    { num: 1, embedUrl: "https://drive.google.com/file/d/1bO2uv_WW4XTPRJ-vhXk6AE2vyr2smrYS/preview" }, 
-                    { num: 2, embedUrl: "https://drive.google.com/file/d/1a3QpRzn2RqRUmlzk96pYrst9yOBErvYS/preview" }, 
-                    { num: 3, embedUrl: "https://drive.google.com/file/d/1f2gmc4QampOQxIhUdMdaJ7iDwS9jOkI8/preview" }, 
-                    { num: 4, embedUrl: "https://drive.google.com/file/d/1IhjZPDwVmSzf2p4MG7f2e89rx7JyWnD1/preview" },
-                    { num: 5, embedUrl: "https://drive.google.com/file/d/1rY81t8FcUtSkc-SneD2Ai3d7KR356H9n/preview" },
-                    { num: 6, embedUrl: "https://drive.google.com/file/d/1X3tCFGVxxxtYPLy40NMVYnJXnMHUA0eV/preview" }
-                ]
-            },
-            { 
-                id: 21, 
-                title: "#Single", 
-                category: "Romance", 
-                rating: "6.3", 
-                type: "Movie", 
-                views: 220, 
-                posterUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhUdpUZmUkx7EuWsBPDU1b2ZxM_vrsZVD6qTbZu_9D9X2i_Yuz84jUzW5X4zhNYfpDMbq3Mciv23J4FV8UJfsdTitOk4mLaAFmKpcMZptpp6XlKczngdWSetIICUO7TWRz4SVWYwCJEDObemvlsIuW4FQRSPYU8ew0hQ5IEEJARs5fTCm_uweggSpJqDYeT/s1250/%23single.jpg",
-                synopsis: "Seorang bujangan menawan yang, meskipun dipuja oleh dua wanita, teguh pada keputusannya untuk tetap melajang.",
-                monetizationLink: "https://perky-ad.com/vmbeGK", // INI UNTUK OVERLAY (IKLAN)
-                embedCode: "https://drive.google.com/file/d/1NnAFT6BVjNCz4JC98GqrT6ec-VsCDMvE/preview", // KONTROL DITAMBAHKAN
-            },
-			
+    function closeModal() {
+        document.getElementById('message-modal').classList.add('hidden');
+    }
 
-        ];
-
-        // --- Tambahkan properti SLUG ke setiap film saat inisialisasi ---
-        mockMovies.forEach(movie => {
-            movie.slug = slugify(movie.title);
-        });
-        // -----------------------------------------------------------------
-
-        let currentPage = 'home';
-        const mainContent = document.getElementById('main-content');
-        
-        let currentFilterType = 'All'; 
-        
-        const POSTERS_PER_BATCH = 10; 
-        
-        let paginationState = {
-            popular: 1,
-            latest: 1
+    function getMovieById(id) {
+        return dummyData.find(m => m.id === id);
+    }
+    
+    // Diperbaiki: Fungsi untuk membaca parameter dari URL Hash (#)
+    function getUrlParams() {
+        const hash = window.location.hash.substring(1); // Ambil hash tanpa karakter '#'
+        const params = new URLSearchParams(hash);
+        return {
+            view: params.get('view') || 'home',
+            id: parseInt(params.get('id')),
+            episode: parseInt(params.get('ep') || '1')
         };
+    }
 
-        // [BARU] State untuk pagination daftar episode di halaman postingan
-        let episodePaginationState = {}; 
-        const EPISODES_PER_BATCH_LIST = 5; 
-
-
-        /**
-         * Menangani klik pada lapisan transparan (overlay) di atas pemutar video.
-         * @param {string} directLinkUrl - URL tujuan direct link (monetization).
-         * @param {string} overlayId - ID overlay yang akan dihapus.
-         */
-        function handleMonetizationClick(directLinkUrl, overlayId) {
-            // 1. Buka direct link (Monetisasi) di tab baru
-            window.open(directLinkUrl, '_blank');
-
-            // 2. Hapus overlay
-            const overlayElement = document.getElementById(overlayId);
-            if (overlayElement) {
-                // Hapus elemen dari DOM agar tidak mengganggu interaksi video
-                overlayElement.remove(); 
-                
-                // Optional: Tampilkan pesan ke user
-                const messageArea = document.getElementById('episode-message');
-                if (messageArea) {
-                    messageArea.textContent = 'Iklan telah dibuka di tab baru. Silakan klik tombol play di video.';
-                    messageArea.classList.remove('text-green-600');
-                    messageArea.classList.add('text-red-500', 'font-bold');
-                }
-            }
-        }
-
-
-        /**
-         * Mengganti URL embed video di frame utama saat tombol episode diklik.
-         */
-        function changeEpisode(embedUrl, episodeIndex, movieTitle, episodeNum) {
-            const videoFrame = document.getElementById('video-frame');
-            const episodeMessage = document.getElementById('episode-message');
-            const episodeTitleDisplay = document.getElementById('episode-title-display');
-            const prevButton = document.getElementById('prev-episode-btn');
-            const nextButton = document.getElementById('next-episode-btn');
-            // Ambil ID film/series dari data attribute di iframe
-            const movieId = parseInt(videoFrame.dataset.movieId); 
-            const movie = mockMovies.find(m => m.id === movieId);
-
-
-            if (videoFrame && movie) {
-                // 1. Update iframe
-                videoFrame.src = embedUrl; 
-                videoFrame.dataset.currentEpisodeIndex = episodeIndex; // Simpan index baru
-
-                // 2. Update UI Teks
-                if (episodeTitleDisplay) {
-                    episodeTitleDisplay.textContent = `${movieTitle} - Episode ${episodeNum}`;
-                }
-                if (episodeMessage) {
-                    episodeMessage.textContent = `Episode ${episodeNum} sedang dimuat...`;
-                    episodeMessage.classList.add('text-green-600');
-                    episodeMessage.classList.remove('text-red-500', 'font-bold');
-                    setTimeout(() => {
-                        episodeMessage.textContent = '';
-                    }, 2000);
-                }
-
-                // 3. Update Tombol Navigasi (Aktif/Nonaktif) - Hanya untuk Series
-                const totalEpisodes = movie.episodes ? movie.episodes.length : 0;
-                const isLatestEpisode = episodeIndex === totalEpisodes - 1;
-                const isFirstEpisode = episodeIndex === 0;
-
-                if (prevButton) {
-                    prevButton.disabled = isFirstEpisode;
-                    prevButton.classList.toggle('bg-gray-400', isFirstEpisode);
-                    prevButton.classList.toggle('bg-blue-600', !isFirstEpisode);
-                    prevButton.classList.toggle('hover:bg-blue-700', !isFirstEpisode);
-                }
-                if (nextButton) {
-                    nextButton.disabled = isLatestEpisode;
-                    nextButton.classList.toggle('bg-gray-400', isLatestEpisode);
-                    // Tombol 'Selanjutnya' tetap merah untuk menarik perhatian
-                    nextButton.classList.toggle('bg-red-600', !isLatestEpisode); 
-                    nextButton.classList.toggle('hover:bg-red-700', !isLatestEpisode);
-                }
-                
-                // 4. Update status tombol di daftar episode
-                document.querySelectorAll('.episode-btn').forEach(btn => {
-                    const btnIndex = parseInt(btn.dataset.episodeIndex);
-                    if (btnIndex === episodeIndex) {
-                        btn.classList.remove('bg-blue-100', 'text-blue-800', 'hover:bg-blue-600', 'hover:text-white');
-                        btn.classList.add('bg-blue-600', 'text-white', 'ring-2', 'ring-blue-800');
-                    } else {
-                        btn.classList.remove('bg-blue-600', 'text-white', 'ring-2', 'ring-blue-800');
-                        btn.classList.add('bg-blue-100', 'text-blue-800', 'hover:bg-blue-600', 'hover:text-white');
-                    }
-                });
-            }
+    // Diperbaiki: Fungsi Navigasi yang Mengubah URL Hash (lebih aman di sandbox)
+    function navigateTo(view, id = null, episode = 1) {
+        let newHash = `view=${view}`;
+        if (id) {
+            newHash += `&id=${id}&ep=${episode}`;
         }
         
-        /**
-         * Fungsi untuk navigasi Episode (Selanjutnya/Kembali)
-         */
-        function navigateEpisode(movieId, direction) {
-            const movie = mockMovies.find(m => m.id === movieId);
-            const videoFrame = document.getElementById('video-frame');
-            
-            if (!movie || !movie.episodes || !videoFrame) return;
+        // Mengubah hash (tidak memicu SecurityError)
+        window.location.hash = newHash;
+        
+        // Memanggil renderApp secara eksplisit untuk menjamin rendering langsung
+        renderApp();
+        window.scrollTo(0, 0); 
+    }
 
-            let currentIndex = parseInt(videoFrame.dataset.currentEpisodeIndex);
-            let newIndex = currentIndex + direction;
+    // Render komponen Poster Film
+    function renderPostCard(movie) {
+        const episodeInfo = (movie.type !== 'Movie' && movie.latestEpisode) ? `Ep ${movie.latestEpisode}` : '';
+        
+        const typeColor = {
+            Movie: 'bg-red-600',
+            Series: 'bg-blue-600',
+            Donghua: 'bg-green-600',
+            Anime: 'bg-purple-600'
+        }[movie.type] || 'bg-gray-600';
 
-            if (newIndex >= 0 && newIndex < movie.episodes.length) {
-                const newEpisode = movie.episodes[newIndex];
-                // Panggil changeEpisode dengan data baru
-                changeEpisode(newEpisode.embedUrl, newIndex, movie.title, newEpisode.num);
-                
-                // [BARU] Periksa apakah episode baru berada di luar halaman tombol episode yang sedang ditampilkan
-                const currentEpisodePage = episodePaginationState[movieId] || 1;
-                const newEpisodePage = Math.ceil((newIndex + 1) / EPISODES_PER_BATCH_LIST);
-                
-                if (newEpisodePage !== currentEpisodePage) {
-                    // Jika di luar halaman, pindahkan halaman dan render ulang tombol
-                    episodePaginationState[movieId] = newEpisodePage;
-                    const episodeListArea = document.getElementById('episode-list-area');
-                    if (episodeListArea) {
-                         episodeListArea.innerHTML = renderEpisodeButtons(movie);
-                    }
-                }
-            }
-        }
-
-        /**
-         * Mengganti halaman tombol episode yang ditampilkan di daftar episode bawah.
-         */
-        function changeEpisodePage(movieId, direction) {
-            const movie = mockMovies.find(m => m.id === movieId);
-            if (!movie || !movie.episodes) return;
-
-            let currentPage = episodePaginationState[movieId] || 1;
-            const totalPages = Math.ceil(movie.episodes.length / EPISODES_PER_BATCH_LIST);
-            
-            const newPage = currentPage + direction;
-
-            if (newPage >= 1 && newPage <= totalPages) {
-                episodePaginationState[movieId] = newPage;
-                
-                // Re-render hanya bagian tombol episode
-                const episodeListArea = document.getElementById('episode-list-area'); 
-                if (episodeListArea) {
-                     // Panggil renderEpisodeButtons untuk mendapatkan HTML baru dan menggantikan yang lama
-                     episodeListArea.innerHTML = renderEpisodeButtons(movie);
-                }
-            }
-        }
-
-
-        /**
-         * Mendapatkan daftar film yang sudah difilter berdasarkan tipe saat ini.
-         */
-        function getFilteredMovies() {
-            if (currentFilterType === 'All') {
-                return mockMovies;
-            }
-            return mockMovies.filter(movie => movie.type === currentFilterType);
-        }
-
-        /**
-         * Membuat HTML untuk satu bagian poster (dengan implementasi pagination).
-         */
-        function createPosterSection(title, movies, sectionId) {
-            const currentPage = paginationState[sectionId];
-            const totalPages = Math.ceil(movies.length / POSTERS_PER_BATCH);
-
-            if (movies.length === 0) {
-                 return `
-                    <section id="${sectionId}" class="section-movie mt-8">
-                        <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-4 border-blue-500 pb-2">${title}</h2>
-                        <div class="text-center p-10 bg-white rounded-xl shadow-lg">
-                            <p class="text-xl text-gray-600">Maaf, tidak ada konten ${currentFilterType} yang ditemukan di bagian ini.</p>
-                        </div>
-                    </section>
-                `;
-            }
-
-            const startIndex = (currentPage - 1) * POSTERS_PER_BATCH;
-            const endIndex = startIndex + POSTERS_PER_BATCH;
-            
-            let moviesToShow = movies.slice(startIndex, endIndex);
-            
-            if (moviesToShow.length === 0 && currentPage > 1) {
-                paginationState[sectionId] = totalPages; 
-                moviesToShow = movies.slice((totalPages - 1) * POSTERS_PER_BATCH, totalPages * POSTERS_PER_BATCH);
-            }
-
-            const postersHtml = moviesToShow.map(movie => {
-                const isSeriesType = ['Series', 'Donghua', 'Anime'].includes(movie.type);
-                const episodeLabel = (isSeriesType && movie.totalEpisodes) ? `
-                    <!-- Indikator Jumlah Episode (Pojok Kanan Atas) -->
-                    <div class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-lg shadow-md z-10">
-                        ${movie.totalEpisodes} EPS
-                    </div>
-                ` : '';
-                
-                return `
-                    <!-- Kontainer Poster -->
-                    <div class="bg-white rounded-xl shadow-xl overflow-hidden transform hover:scale-[1.03] transition duration-300 cursor-pointer relative" onclick="navigate('post', '${movie.slug}')">
-                        
-                        <div class="relative">
-                            <img src="${movie.posterUrl}" alt="Poster ${movie.title}" onerror="this.onerror=null;this.src='https://placehold.co/300x450/424242/ffffff?text=No+Image';" class="w-full h-auto object-cover">
-                            
-                            <!-- RATING - Pojok Kanan Atas (geser ke kiri jika ada label EPS) -->
-                            <div class="absolute top-2 ${isSeriesType && movie.totalEpisodes ? 'left-2' : 'right-2'} bg-yellow-500 text-gray-900 text-sm font-bold px-2 py-1 rounded-full shadow-md z-10">
-                                ⭐ ${movie.rating}
-                            </div>
-
-                            ${episodeLabel}
-    
-                            <!-- TYPE (Movie/Series/Donghua/Anime) - Pojok Kanan Bawah Image -->
-                            <div class="absolute bottom-2 right-2 bg-blue-600 text-white text-xs font-semibold px-2 py-1 rounded-lg shadow-lg uppercase z-10">
-                                ${movie.type}
-                            </div>
-                        </div>
-    
-                        <div class="p-3 text-center">
-                            <!-- PERUBAHAN: Menghapus 'truncate' dan menambahkan kelas 'poster-title' -->
-                            <h3 class="font-semibold poster-title text-gray-900">${movie.title}</h3>
-                            <p class="text-xs text-gray-500">${movie.category}</p>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            const navButtons = totalPages > 1 ? `
-                <div class="text-center mt-8 mb-4 flex justify-center items-center space-x-4">
-                    <button 
-                        onclick="changePage('${sectionId}', ${currentPage - 1})" 
-                        ${currentPage <= 1 ? 'disabled' : ''}
-                        class="px-6 py-3 text-white font-bold rounded-lg transition duration-300 shadow-xl 
-                            ${currentPage <= 1 ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 transform hover:scale-[1.05]'} "
-                    >
-                        &lt; Kembali
-                    </button>
+        // Panggil navigateTo dengan view='player' untuk memuat halaman pemutar unik
+        return `
+            <div class="rounded-lg overflow-hidden cursor-pointer" onclick="navigateTo('player', ${movie.id}, ${movie.latestEpisode || 1})">
+                <div class="poster-container">
+                    <img src="${movie.imageUrl}" alt="Poster ${movie.title}" class="poster-img">
                     
-                    <span class="text-lg font-semibold text-gray-700">
-                        Halaman ${currentPage} dari ${totalPages}
-                    </span>
-
-                    <button 
-                        onclick="changePage('${sectionId}', ${currentPage + 1})" 
-                        ${currentPage >= totalPages ? 'disabled' : ''}
-                        class="px-6 py-3 text-white font-bold rounded-lg transition duration-300 shadow-xl 
-                            ${currentPage >= totalPages ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700 transform hover:scale-[1.05]'} "
-                    >
-                        Selanjutnya &gt;
-                    </button>
-                </div>
-            ` : '';
-
-            return `
-                <section id="${sectionId}" class="section-movie mt-8"> 
-                    <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-4 border-blue-500 pb-2">${title}</h2>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                        ${postersHtml}
+                    <!-- Overlay Rating (Kanan Atas) -->
+                    <div class="absolute top-2 right-2 bg-yellow-500 text-gray-900 text-xs font-bold px-2 py-0.5 rounded-md shadow-lg">
+                        ⭐ ${movie.rating}
                     </div>
-                    ${navButtons}
+
+                    <!-- Overlay Type dan Episode (Kanan Bawah) -->
+                    <div class="absolute bottom-0 right-0 p-2 space-y-1 text-right">
+                        <span class="inline-block ${typeColor} text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow-lg">
+                            ${movie.type}
+                        </span>
+                        ${episodeInfo ? `<span class="inline-block bg-gray-900 text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow-lg">${episodeInfo}</span>` : ''}
+                    </div>
+                </div>
+                <h3 class="text-white text-md font-semibold mt-2 truncate">${movie.title}</h3>
+                <p class="text-gray-400 text-sm">${movie.type}</p>
+            </div>
+        `;
+    }
+
+    // Fungsi untuk merender kontrol Paginasi (Prev/Next)
+    function renderPaginationControls(sectionName, currentPage, totalPages) {
+        if (totalPages <= 1) return '';
+        
+        return `
+            <div class="flex justify-center space-x-4 mt-8">
+                <button onclick="changePage('${sectionName}', 'prev')" 
+                        ${currentPage === 1 ? 'disabled' : ''} 
+                        class="px-4 py-2 bg-gray-700 text-white rounded-lg font-semibold hover:bg-gray-600 disabled:opacity-50 transition duration-150">
+                    Prev
+                </button>
+                <span class="px-4 py-2 text-gray-300 font-medium hidden sm:block">
+                    Halaman ${currentPage} / ${totalPages}
+                </span>
+                <button onclick="changePage('${sectionName}', 'next')" 
+                        ${currentPage === totalPages ? 'disabled' : ''} 
+                        class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 disabled:opacity-50 transition duration-150">
+                    Next
+                </button>
+            </div>
+        `;
+    }
+
+    // Fungsi untuk mengubah halaman paginasi
+    function changePage(section, direction) {
+        if (section === 'popular') {
+            if (direction === 'next') popularPage++; else popularPage--;
+        } else if (section === 'latest') {
+            if (direction === 'next') latestPage++; else latestPage--;
+        }
+        renderHome(); // Re-render home page dengan status halaman baru
+        window.scrollTo(0, 0); // Gulir ke atas
+    }
+
+
+    // --- Fungsi Halaman Utama (Home) ---
+
+    function renderHome(data = dummyData) {
+        const contentDiv = document.getElementById('app-content');
+        let html = '';
+        
+        const isFiltered = data !== dummyData;
+        const totalItems = data.length;
+        
+        // --- 1. Postingan Populer (Prioritas di Tampilan Seluler) ---
+        const sortedPopular = [...data].sort((a, b) => {
+            if (b.views !== a.views) {
+                return b.views - a.views;
+            }
+            return b.rating - a.rating;
+        });
+        
+        const popularTotalPages = isFiltered ? 1 : Math.ceil(totalItems / PAGE_SIZE);
+        const popularStartIndex = (popularPage - 1) * PAGE_SIZE;
+        const popularEndIndex = popularStartIndex + PAGE_SIZE;
+        const popularPosts = sortedPopular.slice(popularStartIndex, popularEndIndex);
+
+        html += `
+            <section id="popular-section" class="mb-10">
+                <h2 class="text-3xl font-bold text-white mb-6 border-b border-red-600 pb-2">Postingan Populer</h2>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    ${popularPosts.map(renderPostCard).join('')}
+                </div>
+                ${!isFiltered ? renderPaginationControls('popular', popularPage, popularTotalPages) : ''}
+            </section>
+        `;
+
+        // --- 2. Postingan Terbaru ---
+        
+        if (!isFiltered) { 
+            const sortedLatest = [...data].sort((a, b) => b.id - a.id);
+            
+            const latestTotalPages = Math.ceil(totalItems / PAGE_SIZE);
+            const latestStartIndex = (latestPage - 1) * PAGE_SIZE;
+            const latestEndIndex = latestStartIndex + PAGE_SIZE;
+            const latestPosts = sortedLatest.slice(latestStartIndex, latestEndIndex);
+            
+            html += `
+                <section id="latest-section" class="mb-10">
+                    <h2 class="text-3xl font-bold text-white mb-6 border-b border-red-600 pb-2">Postingan Terbaru</h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                        ${latestPosts.map(renderPostCard).join('')}
+                    </div>
+                    ${renderPaginationControls('latest', latestPage, latestTotalPages)}
                 </section>
             `;
         }
 
-        /**
-         * Mengganti halaman dan memuat film untuk bagian tertentu.
-         */
-        function changePage(sectionId, newPage) {
-            const allMovies = sectionId === 'popular' 
-                ? [...getFilteredMovies()].sort((a, b) => b.views - a.views)
-                : [...getFilteredMovies()].sort((a, b) => b.id - a.id); 
-                
-            const totalPages = Math.ceil(allMovies.length / POSTERS_PER_BATCH);
+        contentDiv.innerHTML = html;
+        // Pastikan menu mobile ditutup setelah navigasi di halaman utama
+        document.getElementById('mobile-menu').classList.add('hidden');
+    }
 
-            if (newPage >= 1 && newPage <= totalPages) {
-                paginationState[sectionId] = newPage;
-                
-                const sectionElement = document.getElementById(sectionId);
-                if (sectionElement) {
-                    const typeDisplay = currentFilterType === 'All' ? 'Konten' : currentFilterType;
-                    const title = sectionId === 'popular' ? `${typeDisplay} Populer` : `${typeDisplay} Terbaru`;
-                    sectionElement.outerHTML = createPosterSection(title, allMovies, sectionId);
-                }
-                window.scrollTo(0, sectionElement.offsetTop - 100); 
-            }
+    // Fungsi Filter Konten
+    function filterContent(type) {
+        latestPage = 1; 
+        popularPage = 1;
+        
+        const filteredData = dummyData.filter(m => m.type === type);
+        if (filteredData.length === 0) {
+            showModal(`Tidak ada konten untuk kategori: ${type}. Menampilkan semua postingan.`);
+            renderHome(dummyData);
+            return;
+        }
+        renderHome(filteredData);
+    }
+
+    // Fungsi Pencarian
+    function performSearch(isMobile = false) {
+        latestPage = 1; 
+        popularPage = 1;
+        
+        const inputId = isMobile ? 'mobile-search-input' : 'search-input';
+        const query = document.getElementById(inputId).value.toLowerCase();
+        if (!query) {
+            showModal("Mohon masukkan kata kunci pencarian.");
+            return;
         }
 
-        /**
-         * Memfilter tampilan berdasarkan tipe konten.
-         */
-        function filterType(type) {
-            currentFilterType = type;
-            paginationState = { popular: 1, latest: 1 };
+        const searchResults = dummyData.filter(movie => 
+            movie.title.toLowerCase().includes(query) || movie.type.toLowerCase().includes(query)
+        );
 
-            renderHome();
-            
-            const buttons = document.querySelectorAll('.category-btn');
-            buttons.forEach(btn => {
-                if (btn.dataset.type === type) {
-                    btn.classList.remove('bg-blue-900', 'hover:bg-blue-600');
-                    btn.classList.add('bg-blue-500', 'ring-2', 'ring-blue-200');
-                } else {
-                    btn.classList.remove('bg-blue-500', 'ring-2', 'ring-blue-200');
-                    btn.classList.add('bg-blue-900', 'hover:bg-blue-600');
-                }
-            });
+        if (searchResults.length > 0) {
+            renderHome(searchResults);
+        } else {
+            showModal(`Tidak ditemukan hasil untuk "${query}".`);
+            renderHome(dummyData);
         }
+        document.getElementById(inputId).value = '';
+        document.getElementById('mobile-menu').classList.add('hidden');
+    }
 
+    // --- Fungsi Halaman Pemutar (Player) ---
 
-        /**
-         * Fungsi Pencarian Film
-         */
-        function searchMovies() {
-            const query = document.getElementById('search-input').value.toLowerCase();
-            
-            if (query.trim() === '') {
-                navigate('home');
-                return;
-            }
-
-            const searchResults = mockMovies.filter(movie => 
-                movie.title.toLowerCase().includes(query) || 
-                movie.category.toLowerCase().includes(query) ||
-                movie.type.toLowerCase().includes(query) 
-            );
-
-            let contentHtml = '';
-            
-            if (searchResults.length > 0) {
-                const postersHtml = searchResults.map(movie => {
-                    const isSeriesType = ['Series', 'Donghua', 'Anime'].includes(movie.type);
-                    const episodeLabel = (isSeriesType && movie.totalEpisodes) ? `
-                        <div class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-lg shadow-md z-10">
-                            ${movie.totalEpisodes} EPS
-                        </div>
-                    ` : '';
-
-                    return `
-                        <div class="bg-white rounded-xl shadow-xl overflow-hidden transform hover:scale-[1.03] transition duration-300 cursor-pointer relative" onclick="navigate('post', '${movie.slug}')">
-                            <div class="relative">
-                                <img src="${movie.posterUrl}" alt="Poster ${movie.title}" onerror="this.onerror=null;this.src='https://placehold.co/300x450/424242/ffffff?text=No+Image';" class="w-full h-auto object-cover">
-                                <div class="absolute top-2 ${isSeriesType && movie.totalEpisodes ? 'left-2' : 'right-2'} bg-yellow-500 text-gray-900 text-sm font-bold px-2 py-1 rounded-full shadow-md z-10">
-                                    ⭐ ${movie.rating}
-                                </div>
-                                ${episodeLabel}
-                                <div class="absolute bottom-2 right-2 bg-blue-600 text-white text-xs font-semibold px-2 py-1 rounded-lg shadow-lg uppercase z-10">
-                                    ${movie.type}
-                                </div>
-                            </div>
-                            <div class="p-3 text-center">
-                                <!-- Menggunakan kelas poster-title untuk hasil pencarian juga -->
-                                <h3 class="font-semibold poster-title text-gray-900">${movie.title}</h3>
-                                <p class="text-xs text-gray-500">${movie.category}</p>
-                            </div>
-                        </div>
-                    `;
-                }).join(''); 
-
-                contentHtml = `
-                    <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-4 border-blue-500 pb-2">Hasil Pencarian untuk: "${query}"</h2>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                        ${postersHtml}
-                    </div>
-                `;
-
+    // FUNGSI INI MENCARI EMBED SPESIFIK BERDASARKAN NOMOR EPISODE
+    function getEmbed(movie, episode) {
+        let embedKey = '';
+        let embedId = '';
+        
+        // 1. Cek apakah ini Movie (menggunakan embed tunggal)
+        if (movie.type === 'Movie' || !movie.episodesData) {
+            if (movie.embed) {
+                embedKey = Object.keys(movie.embed)[0];
+                embedId = movie.embed[embedKey];
             } else {
-                contentHtml = `
-                    <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-4 border-blue-500 pb-2">Hasil Pencarian untuk: "${query}"</h2>
-                    <div class="text-center p-10 bg-white rounded-xl shadow-lg">
-                        <p class="text-xl text-gray-600">Maaf, tidak ada film, series, donghua, atau anime yang ditemukan dengan kata kunci tersebut.</p>
-                        <button onclick="navigate('home')" class="mt-4 px-4 py-2 text-white font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 transition duration-300 shadow-md">
-                            Kembali ke Beranda
+                 return { url: '', type: 'Tidak Ditemukan', message: 'Tautan embed film tidak ditemukan.' };
+            }
+        } 
+        // 2. Cek apakah ini Serial/Anime/Donghua (menggunakan episodesData)
+        else {
+            const episodeData = movie.episodesData.find(e => e.episode === episode);
+            
+            if (episodeData && episodeData.embed) {
+                embedKey = Object.keys(episodeData.embed)[0];
+                embedId = episodeData.embed[embedKey];
+            } else {
+                return { url: '', type: 'Tidak Ditemukan', message: `Tautan embed untuk Episode ${episode} belum tersedia.` };
+            }
+        }
+
+        // 3. Konversi ID Embed menjadi URL Iframe
+        switch (embedKey) {
+            case 'youtube':
+                return { url: `https://www.youtube.com/embed/${embedId}?autoplay=0`, type: 'YouTube', message: null };
+            case 'dailymotion':
+                return { url: `https://www.dailymotion.com/embed/video/${embedId}`, type: 'Dailymotion', message: null };
+            case 'googleDrive':
+                return { url: `https://drive.google.com/file/d/${embedId}/preview`, type: 'Google Drive', message: null };
+            default:
+                return { url: '', type: 'Tidak Ditemukan', message: 'Tipe embed tidak didukung.' };
+        }
+    }
+
+    function renderPlayer() {
+        const contentDiv = document.getElementById('app-content');
+        if (!currentMovie) {
+            // Jika data film hilang (misal, ID di URL salah), kembali ke beranda
+            navigateTo('home');
+            return;
+        }
+
+        const isSeries = currentMovie.type !== 'Movie';
+        const embedInfo = getEmbed(currentMovie, currentEpisode);
+        
+        // Cek Batasan Episode
+        const hasPrev = currentEpisode > 1;
+        const totalEps = currentMovie.totalEpisodes || 1;
+        const hasNext = isSeries && totalEps > 1 && currentEpisode < totalEps;
+        
+        let playerContent = '';
+
+        if (embedInfo.url) {
+            // Jika embed ditemukan
+             playerContent = `
+                <!-- Lapisan Transparan / Ad Layer -->
+                <!-- GANTI LINK BERIKUT DENGAN DIRECT LINK ADSTERRA ANDA -->
+                <a href="PASANG_LINK_DIRECT_ADSTERRA_ANDA_DI_SINI" target="_blank" class="ad-overlay" id="ad-overlay-link" title="Klik untuk lanjut ke video">
+                    <div class="w-full h-full"></div>
+                </a>
+                <iframe id="video-embed" allowfullscreen></iframe>
+            `;
+        } else {
+            // Jika embed TIDAK ditemukan (misalnya: Episode belum di-upload)
+            playerContent = `
+                <div class="flex items-center justify-center h-full bg-gray-900 rounded-lg text-red-500">
+                    <p class="p-8 text-lg font-semibold">${embedInfo.message || 'Error: Konten pemutar tidak dapat dimuat.'}</p>
+                </div>
+            `;
+        }
+
+
+        let html = `
+            <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-4">
+                <button onclick="navigateTo('home')" class="text-gray-400 hover:text-red-500 mr-2">&larr;</button>
+                ${currentMovie.title} ${isSeries ? `(Episode ${currentEpisode})` : ''}
+            </h1>
+            
+            <!-- Frame Video dan Lapisan Transparan (Ad Overlay) -->
+            <div class="video-wrapper mb-6">
+                ${playerContent}
+            </div>
+
+            <!-- Tombol Download dan Navigasi Episode -->
+            <div class="bg-gray-800 p-4 rounded-lg shadow-xl mb-8">
+                <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                    <!-- Tombol Download -->
+                    <a href="${currentMovie.downloadLink}" target="_blank" class="w-full md:w-auto px-6 py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition duration-150 text-center">
+                        <svg class="w-5 h-5 inline mr-2 -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Download Film
+                    </a>
+                    
+                    ${isSeries && totalEps > 1 ? `
+                    <!-- Navigasi Episode -->
+                    <div class="flex space-x-3 w-full md:w-auto">
+                        <button onclick="changeEpisode('prev')" ${hasPrev ? '' : 'disabled'} class="flex-1 px-4 py-2 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 disabled:opacity-50 transition duration-150">
+                            Prev
+                        </button>
+                        <span class="px-4 py-2 bg-gray-700 text-white font-bold rounded-lg whitespace-nowrap">
+                            Episode ${currentEpisode} / ${totalEps}
+                        </span>
+                        <button onclick="changeEpisode('next')" ${hasNext ? '' : 'disabled'} class="flex-1 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-50 transition duration-150">
+                            Next
                         </button>
                     </div>
-                `;
-            }
-
-            mainContent.innerHTML = contentHtml;
-            window.scrollTo(0, 0); 
-        }
-
-
-        // --- Halaman Beranda (Homepage) ---
-        function renderHome() {
-            const filteredMovies = getFilteredMovies();
-            const typeDisplay = currentFilterType === 'All' ? 'Konten' : currentFilterType;
-
-            const popularMovies = [...filteredMovies].sort((a, b) => b.views - a.views);
-            const popularSectionHtml = createPosterSection(
-                `${typeDisplay} Populer`, 
-                popularMovies, 
-                'popular'
-            );
-
-            const latestMovies = [...filteredMovies].sort((a, b) => b.id - a.id);
-            const latestSectionHtml = createPosterSection(
-                `${typeDisplay} Terbaru`, 
-                latestMovies, 
-                'latest'
-            );
+                    ` : ''}
+                </div>
+            </div>
             
-            mainContent.innerHTML = 
-                popularSectionHtml +  
-                latestSectionHtml;   
-        }
+            <!-- Rekomendasi Movie Sesuai Type -->
+            <section>
+                <h2 class="text-2xl font-bold text-white mb-4 border-b border-red-600 pb-2">Rekomendasi ${currentMovie.type}</h2>
+                <div id="recommendation-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    <!-- Konten rekomendasi dimuat di JS -->
+                </div>
+            </section>
+        `;
+
+        contentDiv.innerHTML = html;
         
-        /**
-         * Merender bagian rekomendasi film.
-         */
-        function renderRecommendations(currentMovie) {
-            
-            const recommendations = mockMovies.filter(movie => {
-                if (movie.id === currentMovie.id) return false; 
-                return movie.type === currentMovie.type; 
-            }).slice(0, 5); 
-            
-            if (recommendations.length === 0) {
-                return '';
-            }
+        loadVideoAndRecommendations();
+    }
 
-            const recommendationTitle = `${currentMovie.type} Serupa`;
-            const movieTypeDisplay = currentMovie.type; 
-            
-            const postersHtml = recommendations.map(movie => {
-                const isSeriesType = ['Series', 'Donghua', 'Anime'].includes(movie.type);
-                const episodeLabel = (isSeriesType && movie.totalEpisodes) ? `
-                    <div class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-1 py-0.5 rounded-lg shadow-md z-10">
-                        ${movie.totalEpisodes} EPS
-                    </div>
-                ` : '';
+    function loadVideoAndRecommendations() {
+        const embedInfo = getEmbed(currentMovie, currentEpisode);
+        const iframe = document.getElementById('video-embed');
+        const overlay = document.getElementById('ad-overlay-link');
+
+        // Logic untuk overlay: Saat overlay diklik, sembunyikan dan muat video
+        if (overlay && iframe && embedInfo.url) {
+            overlay.classList.remove('hidden');
+
+            overlay.onclick = (e) => {
+                e.preventDefault(); 
                 
-                return `
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-[1.03] transition duration-300 cursor-pointer relative" onclick="navigate('post', '${movie.slug}')">
-                        <div class="relative">
-                            <img src="${movie.posterUrl}" alt="Poster ${movie.title}" onerror="this.onerror=null;this.src='https://placehold.co/300x450/424242/ffffff?text=No+Image';" class="w-full h-auto object-cover">
-                            <div class="absolute top-2 ${isSeriesType && movie.totalEpisodes ? 'left-2' : 'right-2'} bg-yellow-500 text-gray-900 text-xs font-bold px-1 py-0.5 rounded-full shadow-md z-10">
-                                ⭐ ${movie.rating}
-                            </div>
-                            ${episodeLabel}
-                        </div>
-                        <div class="p-2 text-center">
-                            <h4 class="font-semibold text-sm truncate">${movie.title}</h4>
-                            <p class="text-xs text-gray-500">${movie.type}</p>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            return `
-                <section class="mt-10 pt-4 border-t border-gray-200">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4">${recommendationTitle}</h3>
-                    <p class="text-sm text-gray-500 mb-4">Mungkin Anda juga menyukai konten ${movieTypeDisplay} ini.</p>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-                        ${postersHtml}
-                    </div>
-                </section>
-            `;
+                window.open(overlay.href, '_blank'); 
+                
+                overlay.style.display = 'none';
+                iframe.src = embedInfo.url;
+                
+                return false;
+            };
+        } else if (overlay) {
+             overlay.classList.add('hidden');
         }
 
-        /**
-         * [BARU] Merender tombol episode dengan pagination.
-         * Ini adalah logika yang diterapkan ke area yang ditunjuk pengguna.
-         */
-        function renderEpisodeButtons(movie) {
-            if (movie.type === 'Movie' || !movie.episodes || movie.episodes.length === 0) {
-                // Kembalikan div kosong atau pesan jika bukan konten ber-episode
-                return `<div id="episode-list-area"></div>`;
-            }
-            
-            // Dapatkan status halaman saat ini (default ke 1)
-            const movieId = movie.id;
-            const currentPage = episodePaginationState[movieId] || 1;
-            const totalEpisodes = movie.episodes.length;
-            const totalPages = Math.ceil(totalEpisodes / EPISODES_PER_BATCH_LIST);
-            
-            // Hitung indeks episode yang akan ditampilkan
-            const startIndex = (currentPage - 1) * EPISODES_PER_BATCH_LIST;
-            const endIndex = startIndex + EPISODES_PER_BATCH_LIST;
-            const displayedEpisodes = movie.episodes.slice(startIndex, endIndex);
 
-            // Dapatkan index episode yang sedang dimainkan dari iframe
-            const videoFrame = document.getElementById('video-frame');
-            let currentEpisodeIndex = -1;
-            if (videoFrame) {
-                currentEpisodeIndex = parseInt(videoFrame.dataset.currentEpisodeIndex);
+        // Rekomendasi
+        const recommendations = dummyData.filter(m => m.type === currentMovie.type && m.id !== currentMovie.id);
+        const recGrid = document.getElementById('recommendation-grid');
+        if (recGrid) {
+            recGrid.innerHTML = recommendations.slice(0, 5).map(renderPostCard).join('');
+            
+            if (recommendations.length === 0 && recGrid.previousElementSibling) {
+                 recGrid.parentElement.classList.add('hidden');
+            } else if (recGrid.parentElement) {
+                recGrid.parentElement.classList.remove('hidden');
             }
-            
-            const buttonsHtml = displayedEpisodes.map((ep, index) => {
-                // Indeks asli di array episode
-                const trueIndex = startIndex + index; 
-                
-                return `
-                    <!-- Tombol Episode - Memanggil fungsi changeEpisode() dengan URL embed dan index episode -->
-                    <button 
-                       data-episode-index="${trueIndex}"
-                       onclick="changeEpisode('${ep.embedUrl}', ${trueIndex}, '${movie.title}', ${ep.num})" 
-                       class="episode-btn px-4 py-2 text-sm font-semibold rounded-lg transition duration-200 shadow-md flex-shrink-0
-                            ${trueIndex === currentEpisodeIndex ? 'bg-blue-600 text-white ring-2 ring-blue-800' : 'bg-blue-100 text-blue-800 hover:bg-blue-600 hover:text-white'}">
-                        EP ${ep.num}
-                    </button>
-                `;
-            }).join('');
-
-            const navButtons = totalPages > 1 ? `
-                <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
-                    <button 
-                        onclick="changeEpisodePage(${movieId}, -1)" 
-                        ${currentPage <= 1 ? 'disabled' : ''}
-                        class="px-4 py-2 text-sm font-bold rounded-lg transition duration-300 shadow-md 
-                            ${currentPage <= 1 ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 text-white'} transform hover:scale-[1.05]"
-                    >
-                        &lt; Hal. Sebelumnya
-                    </button>
-                    <span class="text-sm text-gray-600 font-medium">
-                        Hal. ${currentPage} dari ${totalPages}
-                    </span>
-                    <button 
-                        onclick="changeEpisodePage(${movieId}, 1)" 
-                        ${currentPage >= totalPages ? 'disabled' : ''}
-                        class="px-4 py-2 text-sm font-bold rounded-lg transition duration-300 shadow-md 
-                            ${currentPage >= totalPages ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 text-white'} transform hover:scale-[1.05]"
-                    >
-                        Hal. Selanjutnya &gt;
-                    </button>
-                </div>
-            ` : '';
-            
-            return `
-                <div>
-                    <h3 class="text-xl font-semibold mb-3 text-blue-700">Pilih Episode Langsung</h3>
-                    <div class="flex flex-wrap gap-3">
-                        ${buttonsHtml}
-                    </div>
-                    ${navButtons}
-                </div>
-            `;
         }
+    }
+
+    function changeEpisode(direction) {
+        let newEpisode = currentEpisode;
+        if (direction === 'next') {
+            newEpisode++;
+        } else if (direction === 'prev') {
+            newEpisode--;
+        }
+
+        const totalEps = currentMovie.totalEpisodes || 1;
+        if (newEpisode >= 1 && newEpisode <= totalEps) {
+            // Panggil navigateTo untuk mengubah URL hash dan merender ulang halaman
+            navigateTo('player', currentMovie.id, newEpisode);
+        } else {
+            showModal("Tidak ada episode selanjutnya atau sebelumnya.");
+        }
+    }
+
+    // --- Inisialisasi Aplikasi ---
+
+    function renderApp() {
+        const params = getUrlParams();
+        const movie = getMovieById(params.id);
+
+        // Update state global berdasarkan URL parameter yang baru dibaca
+        currentMovie = movie;
+        currentEpisode = params.episode;
+
+        if (params.view === 'player' && movie) {
+            renderPlayer();
+        } else {
+            renderHome();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
         
-        // --- Halaman Postingan (Post Page) ---
-        function renderPost(movieSlug) {
-            const movie = mockMovies.find(m => m.slug === movieSlug); 
-
-            if (!movie) {
-                mainContent.innerHTML = '<div class="text-center p-10 text-red-600">Film tidak ditemukan!</div>';
-                return;
-            }
-
-            let initialEmbedUrl = movie.embedCode || placeholderEmbed;
-            let initialEpisodeIndex = -1;
-            let initialEpisodeNum = 0; 
-            let initialTitleDisplay = movie.title; 
-
-            const hasEpisodes = (movie.type !== 'Movie') && movie.episodes && movie.episodes.length > 0;
-            
-            // [BARU] Inisialisasi state pagination episode untuk film ini
-            if (hasEpisodes) {
-                episodePaginationState[movie.id] = 1; 
-            }
-
-            if (hasEpisodes) {
-                // Muat Episode TERAKHIR (Terbaru)
-                const lastEpisodeIndex = movie.episodes.length - 1; 
-                const latestEpisode = movie.episodes[lastEpisodeIndex]; 
-                
-                initialEmbedUrl = latestEpisode.embedUrl;
-                initialEpisodeIndex = lastEpisodeIndex;
-                initialEpisodeNum = latestEpisode.num;
-                initialTitleDisplay = `${movie.title} - Episode ${initialEpisodeNum}`;
-                
-                // [BARU] Sesuaikan halaman pagination episode agar menampilkan episode terakhir
-                const latestEpisodePage = Math.ceil(initialEpisodeNum / EPISODES_PER_BATCH_LIST);
-                episodePaginationState[movie.id] = latestEpisodePage;
-
-
-            } else if (movie.type === 'Movie') {
-                 initialEpisodeNum = 1;
-                 initialTitleDisplay = movie.title;
-            }
-
-            const episodeNavigation = hasEpisodes ? `
-                <!-- Tombol Navigasi Episode (Kembali & Selanjutnya) -->
-                <div class="flex flex-col md:flex-row justify-between items-center bg-gray-100 p-4 rounded-lg shadow-inner mt-4 space-y-3 md:space-y-0">
-                    
-                    <!-- Tombol Kembali -->
-                    <button 
-                        id="prev-episode-btn"
-                        onclick="navigateEpisode(${movie.id}, -1)" 
-                        class="w-full md:w-auto px-5 py-2 font-bold rounded-lg transition duration-300 shadow-lg flex items-center justify-center
-                            ${initialEpisodeIndex === 0 ? 'bg-gray-400 cursor-not-allowed text-gray-700' : 'bg-blue-600 hover:bg-blue-700 text-white transform hover:scale-[1.05]'}
-                            disabled:opacity-50 disabled:cursor-not-allowed"
-                        ${initialEpisodeIndex === 0 ? 'disabled' : ''}
-                    >
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
-                        Kembali
-                    </button>
-
-                    <!-- Pesan Status Episode Aktif -->
-                    <div class="text-center w-full md:w-auto py-2 md:py-0">
-                        <p id="episode-message" class="text-sm text-green-600 font-semibold">Tonton Episode ${initialEpisodeNum}</p>
-                    </div>
-
-                    <!-- Tombol Selanjutnya -->
-                    <button 
-                        id="next-episode-btn"
-                        onclick="navigateEpisode(${movie.id}, 1)" 
-                        class="w-full md:w-auto px-5 py-2 font-bold rounded-lg transition duration-300 shadow-lg flex items-center justify-center
-                            ${initialEpisodeIndex === movie.episodes.length - 1 ? 'bg-gray-400 cursor-not-allowed text-gray-700' : 'bg-red-600 hover:bg-red-700 text-white transform hover:scale-[1.05]'}
-                            disabled:opacity-50 disabled:cursor-not-allowed"
-                        ${initialEpisodeIndex === movie.episodes.length - 1 ? 'disabled' : ''}
-                    >
-                        Selanjutnya
-                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
-                    </button>
-                </div>
-            ` : ''; 
-
-            const postContent = `
-                <article class="bg-white p-6 rounded-xl shadow-2xl">
-                    <h2 class="text-4xl font-bold text-gray-900 mb-6 border-b pb-3">${movie.title}</h2>
-
-                    <!-- Area Poster dan Info Film -->
-                    <div class="md:flex md:space-x-8 mb-8">
-                        <div class="flex-shrink-0 mb-6 md:mb-0">
-                            <img src="${movie.posterUrl}" alt="Poster ${movie.title}" class="w-full max-w-xs h-auto rounded-lg shadow-lg mx-auto md:mx-0">
-                        </div>
-                        <div class="flex-grow">
-                            <h3 class="text-2xl font-semibold mb-3 text-blue-700">Sinopsis</h3>
-                            <p class="text-gray-700 leading-relaxed">${movie.synopsis || 'Sinopsis tidak tersedia.'}</p>
-                            <p class="mt-4 text-sm text-gray-500">
-                                ID Konten: ${movie.id} | 
-                                Kategori: ${movie.category} |
-                                Tipe: <span class="font-bold text-red-600">${movie.type}</span> |
-                                Rating: <span class="font-bold text-yellow-600">${movie.rating}</span>
-                            </p>
-                            ${movie.totalEpisodes ? `<p class="mt-1 text-sm text-gray-500 font-semibold">Total Episode: <span class="text-red-600">${movie.totalEpisodes}</span></p>` : ''}
-                        </div>
-                    </div>
-
-                    <!-- Tempat Embed Video (Frame) & Lapisan Iklan -->
-                    <div class="w-full mb-4">
-                        <h3 class="text-2xl font-semibold mb-3 text-blue-700">Tonton</h3> 
-                        
-                        <!-- Judul Episode di ATAS Video -->
-                        ${hasEpisodes ? `
-                            <div class="bg-gray-200 p-3 rounded-t-lg text-center shadow-md -mb-1 z-10 relative">
-                                <h4 id="episode-title-display" class="font-bold text-xl text-gray-900">
-                                    ${initialTitleDisplay}
-                                </h4>
-                            </div>
-                        ` : ''}
-
-                        <div class="iframe-container ${hasEpisodes ? 'rounded-t-none' : ''}">
-                            
-                            <!-- Lapisan Transparan Penuh (Overlay Iklan) -->
-                            <div id="overlay-${movie.id}" 
-                                onclick="handleMonetizationClick('${movie.monetizationLink || '#'}', 'overlay-${movie.id}')"
-                                class="absolute inset-0 z-20 transparent-overlay">
-                            </div>
-                            
-                            <!-- ID 'video-frame' digunakan untuk mengganti video. Menyimpan data-attribute untuk tracking episode -->
-                            <iframe id="video-frame" 
-                                data-movie-id="${movie.id}"
-                                data-current-episode-index="${initialEpisodeIndex}"
-                                src="${initialEmbedUrl}" 
-                                title="Video Player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen 
-                                class="w-full h-full">
-                            </iframe>
-                        </div>
-                    </div>
-
-                    <!-- Area Navigasi Episode dan Catatan Autoplay -->
-                    ${episodeNavigation}
-
-
-                    <!-- Tombol Download dan Daftar Episode (Bawah Frame) -->
-                    <div class="mt-8 mb-8 space-y-6 border-t pt-6">
-                        
-                        <!-- Tombol Download -->
-                        <div class="border-b pb-4">
-                            <h3 class="text-xl font-semibold mb-3 text-red-600">Unduh ${movie.title}</h3>
-                            <a href="${movie.downloadLink || '#link-belum-tersedia'}" target="_blank" 
-                               class="inline-block px-6 py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition duration-300 shadow-lg transform hover:scale-[1.02] 
-                               ${movie.downloadLink ? '' : 'opacity-50 cursor-not-allowed'}" 
-                               ${movie.downloadLink ? '' : 'onclick="event.preventDefault()"'}
-                            >
-                                <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                Unduh Sekarang
-                            </a>
-                            ${!movie.downloadLink ? '<p class="text-sm text-gray-500 mt-2">Link unduhan belum ditambahkan.</p>' : ''}
-                        </div>
-
-                        <!-- Daftar Episode (Tombol Pilihan Langsung) -->
-                        <div id="episode-list-area">
-                            <!-- Konten dimuat oleh renderEpisodeButtons() -->
-                        </div>
-                    </div>
-                    
-                    <!-- Area Rekomendasi Otomatis -->
-                    ${renderRecommendations(movie)}
-                </article>
-            `;
-            
-            mainContent.innerHTML = postContent;
-            
-            if (hasEpisodes) {
-                const initialEpisode = movie.episodes[initialEpisodeIndex];
-                changeEpisode(initialEpisode.embedUrl, initialEpisodeIndex, movie.title, initialEpisode.num);
-                
-                // [BARU] Render tombol episode untuk pertama kalinya
-                const episodeListArea = document.getElementById('episode-list-area'); 
-                if (episodeListArea) {
-                     episodeListArea.innerHTML = renderEpisodeButtons(movie);
-                }
-            }
-        }
-
-        /**
-         * FUNGSI BARU: Menentukan halaman mana yang harus dimuat dari URL Hash.
-         */
-        function handleRouting() {
-            const hash = window.location.hash.substring(1); 
-            
-            if (hash === 'home' || hash === '') {
-                navigate('home');
-            } else if (hash.startsWith('post/')) {
-                const movieSlug = hash.substring(5); 
-                if (movieSlug.length > 0) {
-                    navigate('post', movieSlug, false); 
-                } else {
-                    navigate('home');
-                }
-            } else {
-                navigate('home');
-            }
-        }
-
-        /**
-         * Fungsi navigasi utama (Diperbarui untuk Direct Link)
-         * @param {string} page - Tipe halaman ('home' atau 'post')
-         * @param {string | null} identifier - SLUG film (untuk 'post') atau null (untuk 'home')
-         * @param {boolean} [updateHash=true] - Apakah akan memperbarui URL hash. Default true.
-         */
-        function navigate(page, identifier = null, updateHash = true) {
-            currentPage = page;
-            
-            let newHash = '';
-
-            if (page === 'home') {
-                renderHome();
-                newHash = 'home';
-                filterType(currentFilterType);
-            } else if (page === 'post' && identifier) {
-                renderPost(identifier); 
-                newHash = `post/${identifier}`;
-            }
-            
-            if (updateHash && newHash && window.location.hash !== `#${newHash}`) {
-                window.location.hash = newHash; 
-            }
-            
-            window.scrollTo(0, 0); 
-        }
-
-        // Muat halaman saat dokumen siap
-        document.addEventListener('DOMContentLoaded', () => {
-            // 1. Tambahkan listener untuk menangani tombol Back/Forward dan muat awal
-            window.addEventListener('hashchange', handleRouting);
-
-            // 2. Lakukan routing awal untuk memuat halaman yang sesuai dari URL 
-            handleRouting(); 
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
         });
-    </script>
+        
+        // Diperbaiki: Mengganti 'popstate' dengan 'hashchange' untuk menghindari SecurityError
+        window.addEventListener('hashchange', renderApp);
+
+        // Render halaman awal (Membaca URL saat dimuat)
+        renderApp(); 
+    });
+</script>
 
 </body>
 </html>
-
-
