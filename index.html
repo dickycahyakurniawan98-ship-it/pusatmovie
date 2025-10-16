@@ -7,15 +7,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- === PERBAIKAN: OPEN GRAPH META TAGS (OG) === -->
-    <!-- Ini adalah meta tag yang dibaca oleh Twitter/X, Facebook, dll. untuk membuat pratinjau -->
+    <!-- Font Awesome untuk ikon tombol play -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- === OPEN GRAPH META TAGS (OG) === -->
     <meta property="og:title" content="DICAKUN - Tonton Film & Serial Gratis Kualitas HD" />
     <meta property="og:description" content="Streaming film, serial, anime, dan donghua terbaru dengan akses link langsung. Nikmati koleksi lengkap tanpa batas." />
-    <!-- GANTI DENGAN URL GAMBAR LOGO/POSTER BERKUALITAS TINGGI ANDA (Rasio ideal 1.91:1, misal 1200x628) -->
     <meta property="og:image" content="https://placehold.co/1200x630/dc2626/ffffff?text=DICAKUN+Streaming+Gratis" />
     <meta property="og:url" content="URL_ANDA_DI_SINI" />
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@NAMA_TWITTER_ANDA">
     <!-- ============================================== -->
 
     <style>
@@ -58,20 +58,48 @@
             border: none;
         }
 
-        /* Iklan Overlay Transparan Penuh - SELALU 100% TRANSPARAN */
+        /* --- Custom Style untuk Play Overlay (Tombol Play Palsu) --- */
         .ad-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: transparent; 
+            background-color: rgba(0, 0, 0, 0.3); 
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             z-index: 10;
+            transition: background-color 0.3s;
         }
+        
+        .ad-overlay:hover {
+            background-color: rgba(0, 0, 0, 0.5); 
+        }
+
+        .play-button {
+            /* Gaya Tombol Play Palsu */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 6rem;
+            height: 6rem;
+            background-color: rgba(239, 68, 68, 0.9); /* Red 500 */
+            color: white;
+            border-radius: 50%;
+            font-size: 2.5rem;
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        /* Akhir Custom Style untuk Play Overlay */
+
     </style>
 </head>
 <body>
@@ -81,7 +109,6 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
             <div class="flex items-center">
-                <!-- Diperbaiki: Menggunakan navigateTo('home') untuk memastikan URL hash disetel ulang -->
                 <a href="#" onclick="navigateTo('home')" class="flex-shrink-0 text-2xl font-extrabold text-red-500 tracking-wider">
                     DICAKUN
                 </a>
@@ -135,6 +162,16 @@
 </div>
 
 <script>
+    // ==========================================================
+    // !!! TEMPAT GANTI LINK GLOBAL ANDA !!!
+    // ==========================================================
+    // LINK INI HANYA UNTUK TOMBOL PLAY PALSU/OVERLAY (Iklan Pop-up)
+    const GLOBAL_AD_LINK = 'https://perky-ad.com/vmbeGK'; 
+    
+    // CATATAN: Link Download sekarang diatur secara SPESIFIK di dalam data dummy di bawah.
+    // ==========================================================
+
+
     // --- Variabel Global (Hanya untuk Cache dan Paginasi) ---
     let currentMovie = null; 
     let currentEpisode = 1;
@@ -144,9 +181,9 @@
     let latestPage = 1;
     let popularPage = 1;
 
-    // Data dummy untuk Postingan
+    // Data dummy untuk Postingan (Link Download Spesifik di setiap objek)
     const dummyData = [
-        // --- MOVIE (Tidak perlu episodesData) ---
+        // --- MOVIE ---
         { 
             id: 1, 
             title: 'kuntilanak 3 (2022)', 
@@ -405,9 +442,8 @@
         return dummyData.find(m => m.id === id);
     }
     
-    // Diperbaiki: Fungsi untuk membaca parameter dari URL Hash (#)
     function getUrlParams() {
-        const hash = window.location.hash.substring(1); // Ambil hash tanpa karakter '#'
+        const hash = window.location.hash.substring(1); 
         const params = new URLSearchParams(hash);
         return {
             view: params.get('view') || 'home',
@@ -416,17 +452,13 @@
         };
     }
 
-    // Diperbaiki: Fungsi Navigasi yang Mengubah URL Hash (lebih aman di sandbox)
     function navigateTo(view, id = null, episode = 1) {
         let newHash = `view=${view}`;
         if (id) {
             newHash += `&id=${id}&ep=${episode}`;
         }
         
-        // Mengubah hash (tidak memicu SecurityError)
         window.location.hash = newHash;
-        
-        // Memanggil renderApp secara eksplisit untuk menjamin rendering langsung
         renderApp();
         window.scrollTo(0, 0); 
     }
@@ -442,7 +474,6 @@
             Anime: 'bg-purple-600'
         }[movie.type] || 'bg-gray-600';
 
-        // Panggil navigateTo dengan view='player' untuk memuat halaman pemutar unik
         return `
             <div class="rounded-lg overflow-hidden cursor-pointer" onclick="navigateTo('player', ${movie.id}, ${movie.latestEpisode || 1})">
                 <div class="poster-container">
@@ -497,8 +528,8 @@
         } else if (section === 'latest') {
             if (direction === 'next') latestPage++; else latestPage--;
         }
-        renderHome(); // Re-render home page dengan status halaman baru
-        window.scrollTo(0, 0); // Gulir ke atas
+        renderHome(); 
+        window.scrollTo(0, 0); 
     }
 
 
@@ -556,7 +587,6 @@
         }
 
         contentDiv.innerHTML = html;
-        // Pastikan menu mobile ditutup setelah navigasi di halaman utama
         document.getElementById('mobile-menu').classList.add('hidden');
     }
 
@@ -605,13 +635,13 @@
     // FUNGSI INI MENCARI EMBED SPESIFIK BERDASARKAN NOMOR EPISODE
     function getEmbed(movie, episode) {
         let embedKey = '';
-        let embedId = '';
+        let embedValue = ''; 
         
         // 1. Cek apakah ini Movie (menggunakan embed tunggal)
         if (movie.type === 'Movie' || !movie.episodesData) {
             if (movie.embed) {
                 embedKey = Object.keys(movie.embed)[0];
-                embedId = movie.embed[embedKey];
+                embedValue = movie.embed[embedKey];
             } else {
                  return { url: '', type: 'Tidak Ditemukan', message: 'Tautan embed film tidak ditemukan.' };
             }
@@ -622,20 +652,28 @@
             
             if (episodeData && episodeData.embed) {
                 embedKey = Object.keys(episodeData.embed)[0];
-                embedId = episodeData.embed[embedKey];
+                embedValue = episodeData.embed[embedKey];
             } else {
                 return { url: '', type: 'Tidak Ditemukan', message: `Tautan embed untuk Episode ${episode} belum tersedia.` };
             }
         }
 
-        // 3. Konversi ID Embed menjadi URL Iframe
+        // 3. Konversi ID Embed/Nilai menjadi URL Iframe
         switch (embedKey) {
             case 'youtube':
-                return { url: `https://www.youtube.com/embed/${embedId}?autoplay=0`, type: 'YouTube', message: null };
+                if (embedValue.startsWith('http')) {
+                    return { url: embedValue, type: 'YouTube', message: null };
+                }
+                return { url: `https://www.youtube.com/embed/${embedValue}?autoplay=0`, type: 'YouTube', message: null };
+            
             case 'dailymotion':
-                return { url: `https://www.dailymotion.com/embed/video/${embedId}`, type: 'Dailymotion', message: null };
+                if (embedValue.startsWith('http')) {
+                    return { url: embedValue, type: 'Dailymotion', message: null };
+                }
+                return { url: `https://www.dailymotion.com/embed/video/${embedValue}`, type: 'Dailymotion', message: null };
+            
             case 'googleDrive':
-                return { url: `https://drive.google.com/file/d/${embedId}/preview`, type: 'Google Drive', message: null };
+                return { url: `https://drive.google.com/file/d/${embedValue}/preview`, type: 'Google Drive', message: null };
             default:
                 return { url: '', type: 'Tidak Ditemukan', message: 'Tipe embed tidak didukung.' };
         }
@@ -644,7 +682,6 @@
     function renderPlayer() {
         const contentDiv = document.getElementById('app-content');
         if (!currentMovie) {
-            // Jika data film hilang (misal, ID di URL salah), kembali ke beranda
             navigateTo('home');
             return;
         }
@@ -656,21 +693,25 @@
         const hasPrev = currentEpisode > 1;
         const totalEps = currentMovie.totalEpisodes || 1;
         const hasNext = isSeries && totalEps > 1 && currentEpisode < totalEps;
-        
+
+        // Tentukan link download spesifik untuk film ini
+        const downloadLink = currentMovie.downloadLink || '#';
+        const isDownloadAvailable = downloadLink && downloadLink !== '#';
+
         let playerContent = '';
 
         if (embedInfo.url) {
-            // Jika embed ditemukan
              playerContent = `
-                <!-- Lapisan Transparan / Ad Layer -->
-                <!-- GANTI LINK BERIKUT DENGAN DIRECT LINK ADSTERRA ANDA -->
-                <a href="https://perky-ad.com/vmbeGK" target="_blank" class="ad-overlay" id="ad-overlay-link" title="Klik untuk lanjut ke video">
-                    <div class="w-full h-full"></div>
-                </a>
+                <!-- Tombol Play Palsu/Ad Overlay (WAJIB ADA) -->
+                <div class="ad-overlay" id="ad-overlay">
+                    <div class="play-button">
+                         <i class="fas fa-play"></i>
+                    </div>
+                </div>
                 <iframe id="video-embed" allowfullscreen></iframe>
             `;
         } else {
-            // Jika embed TIDAK ditemukan (misalnya: Episode belum di-upload)
+            // Jika embed TIDAK ditemukan 
             playerContent = `
                 <div class="flex items-center justify-center h-full bg-gray-900 rounded-lg text-red-500">
                     <p class="p-8 text-lg font-semibold">${embedInfo.message || 'Error: Konten pemutar tidak dapat dimuat.'}</p>
@@ -693,10 +734,13 @@
             <!-- Tombol Download dan Navigasi Episode -->
             <div class="bg-gray-800 p-4 rounded-lg shadow-xl mb-8">
                 <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-                    <!-- Tombol Download -->
-                    <a href="${currentMovie.downloadLink}" target="_blank" class="w-full md:w-auto px-6 py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition duration-150 text-center">
+                    
+                    <!-- !!! PENTING: TOMBOL DOWNLOAD INI MENGGUNAKAN currentMovie.downloadLink !!! -->
+                    <a href="${downloadLink}" target="_blank" 
+                       class="w-full md:w-auto px-6 py-3 bg-red-600 text-white font-bold rounded-lg transition duration-150 text-center
+                       ${isDownloadAvailable ? 'hover:bg-red-700' : 'opacity-50 cursor-not-allowed'}">
                         <svg class="w-5 h-5 inline mr-2 -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        Download Film
+                        ${isDownloadAvailable ? 'Download Film' : 'Download T/A'}
                     </a>
                     
                     ${isSeries && totalEps > 1 ? `
@@ -733,25 +777,36 @@
     function loadVideoAndRecommendations() {
         const embedInfo = getEmbed(currentMovie, currentEpisode);
         const iframe = document.getElementById('video-embed');
-        const overlay = document.getElementById('ad-overlay-link');
+        const overlay = document.getElementById('ad-overlay'); 
+        
+        // !!! PENTING: MENGGUNAKAN GLOBAL_AD_LINK untuk iklan/pop-up play palsu !!!
+        const adLink = GLOBAL_AD_LINK;
 
-        // Logic untuk overlay: Saat overlay diklik, sembunyikan dan muat video
+        // ==========================================================
+        // !!! MEKANISME DIRECTLINK / IKLAN SAAT TOMBOL PLAY PALSU DIKLIK !!!
+        // ==========================================================
         if (overlay && iframe && embedInfo.url) {
             overlay.classList.remove('hidden');
 
             overlay.onclick = (e) => {
                 e.preventDefault(); 
                 
-                window.open(overlay.href, '_blank'); 
+                // 1. Buka tautan GLOBAL_AD_LINK (iklan/direct link play) di tab baru
+                if (adLink) {
+                    window.open(adLink, '_blank'); 
+                }
                 
+                // 2. Sembunyikan overlay dan muat video yang sebenarnya
                 overlay.style.display = 'none';
                 iframe.src = embedInfo.url;
                 
                 return false;
             };
         } else if (overlay) {
+             // Jika tidak ada URL embed, sembunyikan overlay
              overlay.classList.add('hidden');
         }
+        // ==========================================================
 
 
         // Rekomendasi
@@ -776,50 +831,45 @@
             newEpisode--;
         }
 
-        const totalEps = currentMovie.totalEpisodes || 1;
-        if (newEpisode >= 1 && newEpisode <= totalEps) {
-            // Panggil navigateTo untuk mengubah URL hash dan merender ulang halaman
-            navigateTo('player', currentMovie.id, newEpisode);
+        if (newEpisode >= 1 && newEpisode <= currentMovie.totalEpisodes) {
+            currentEpisode = newEpisode;
+            navigateTo('player', currentMovie.id, currentEpisode);
         } else {
-            showModal("Tidak ada episode selanjutnya atau sebelumnya.");
+            showModal(`Episode ${newEpisode} tidak valid atau belum tersedia.`);
         }
     }
 
-    // --- Inisialisasi Aplikasi ---
 
-    function renderApp() {
+    // --- Setup dan Handler Event ---
+    
+    function handleHashChange() {
         const params = getUrlParams();
-        const movie = getMovieById(params.id);
-
-        // Update state global berdasarkan URL parameter yang baru dibaca
-        currentMovie = movie;
-        currentEpisode = params.episode;
-
-        if (params.view === 'player' && movie) {
-            renderPlayer();
+        
+        if (params.view === 'player' && params.id) {
+            currentMovie = getMovieById(params.id);
+            currentEpisode = params.episode;
+            if (currentMovie) {
+                renderPlayer();
+            } else {
+                navigateTo('home');
+            }
         } else {
+            currentMovie = null;
+            currentEpisode = 1;
             renderHome();
         }
     }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const mobileMenu = document.getElementById('mobile-menu');
-        
-        mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-        
-        // Diperbaiki: Mengganti 'popstate' dengan 'hashchange' untuk menghindari SecurityError
-        window.addEventListener('hashchange', renderApp);
-
-        // Render halaman awal (Membaca URL saat dimuat)
-        renderApp(); 
+    
+    // Inisialisasi Aplikasi
+    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener('load', handleHashChange);
+    
+    // Toggle mobile menu
+    document.getElementById('mobile-menu-button').addEventListener('click', () => {
+        document.getElementById('mobile-menu').classList.toggle('hidden');
     });
+
 </script>
 
 </body>
 </html>
-
-
-
