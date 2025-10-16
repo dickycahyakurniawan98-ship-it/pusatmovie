@@ -100,6 +100,19 @@
         }
         /* Akhir Custom Style untuk Play Overlay */
 
+        /* Custom Scrollbar for Episode List (Better UX) */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #4b5563; /* Gray 600 */
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1f2937; /* Gray 800 */
+        }
+
     </style>
 </head>
 <body>
@@ -168,7 +181,7 @@
     // LINK INI HANYA UNTUK TOMBOL PLAY PALSU/OVERLAY (Iklan Pop-up)
     const GLOBAL_AD_LINK = 'https://perky-ad.com/vmbeGK'; 
     
-    // CATATAN: Link Download sekarang diatur secara SPESIFIK di dalam data dummy di bawah.
+    // CATATAN: Link Download diatur secara SPESIFIK di dalam data dummy di bawah.
     // ==========================================================
 
 
@@ -681,6 +694,7 @@
     // --- Fungsi Utilitas Navigasi Berbasis URL ---
 
     function showModal(message) {
+        console.log("Menampilkan pesan modal:", message); // LOGGING
         document.getElementById('message-text').textContent = message;
         document.getElementById('message-modal').classList.remove('hidden');
     }
@@ -704,19 +718,24 @@
     }
 
     function navigateTo(view, id = null, episode = 1) {
+        console.log("Navigasi ke:", view, "ID:", id, "EP:", episode); // LOGGING
         let newHash = `view=${view}`;
         if (id) {
             newHash += `&id=${id}&ep=${episode}`;
         }
         
         window.location.hash = newHash;
-        renderApp();
-        window.scrollTo(0, 0); 
+        // Memanggil handler hash change untuk merender konten
+        handleHashChange(); 
+        window.scrollTo(0, 0);
     }
 
     // Render komponen Poster Film
     function renderPostCard(movie) {
-        const episodeInfo = (movie.type !== 'Movie' && movie.latestEpisode) ? `Ep ${movie.latestEpisode}` : '';
+        // Jika movie adalah serial dan punya total episode > 1, gunakan latestEpisode
+        const episodeInfo = (movie.type !== 'Movie' && movie.totalEpisodes > 1 && movie.latestEpisode) 
+            ? `Ep ${movie.latestEpisode}` 
+            : '';
         
         const typeColor = {
             Movie: 'bg-red-600',
@@ -725,8 +744,11 @@
             Anime: 'bg-purple-600'
         }[movie.type] || 'bg-gray-600';
 
+        // Tentukan episode default untuk navigasi (episode 1 jika series, atau null jika movie)
+        const defaultEpisode = movie.type !== 'Movie' ? 1 : null;
+
         return `
-            <div class="rounded-lg overflow-hidden cursor-pointer" onclick="navigateTo('player', ${movie.id}, ${movie.latestEpisode || 1})">
+            <div class="rounded-lg overflow-hidden cursor-pointer" onclick="navigateTo('player', ${movie.id}, ${defaultEpisode || 1})">
                 <div class="poster-container">
                     <img src="${movie.imageUrl}" alt="Poster ${movie.title}" class="poster-img">
                     
@@ -774,6 +796,7 @@
 
     // Fungsi untuk mengubah halaman paginasi
     function changePage(section, direction) {
+        console.log("Mengubah halaman:", section, direction); // LOGGING
         if (section === 'popular') {
             if (direction === 'next') popularPage++; else popularPage--;
         } else if (section === 'latest') {
@@ -843,6 +866,7 @@
 
     // Fungsi Filter Konten
     function filterContent(type) {
+        console.log("Memfilter konten berdasarkan tipe:", type); // LOGGING
         latestPage = 1; 
         popularPage = 1;
         
@@ -862,10 +886,13 @@
         
         const inputId = isMobile ? 'mobile-search-input' : 'search-input';
         const query = document.getElementById(inputId).value.toLowerCase();
+        
         if (!query) {
             showModal("Mohon masukkan kata kunci pencarian.");
             return;
         }
+        
+        console.log("Melakukan pencarian untuk:", query); // LOGGING
 
         const searchResults = dummyData.filter(movie => 
             movie.title.toLowerCase().includes(query) || movie.type.toLowerCase().includes(query)
@@ -889,7 +916,8 @@
         let embedValue = ''; 
         
         // 1. Cek apakah ini Movie (menggunakan embed tunggal)
-        if (movie.type === 'Movie' || !movie.episodesData) {
+        const isMovie = movie.type === 'Movie';
+        if (isMovie || !movie.episodesData) {
             if (movie.embed) {
                 embedKey = Object.keys(movie.embed)[0];
                 embedValue = movie.embed[embedKey];
@@ -905,7 +933,8 @@
                 embedKey = Object.keys(episodeData.embed)[0];
                 embedValue = episodeData.embed[embedKey];
             } else {
-                return { url: '', type: 'Tidak Ditemukan', message: `Tautan embed untuk Episode ${episode} belum tersedia.` };
+                // Ini akan terpicu jika ada episode di totalEpisodes, tapi tidak ada di episodesData
+                return { url: '', type: 'Tidak Ditemukan', message: `Tautan embed untuk Episode ${episode} belum tersedia. Silakan pilih episode lain.` };
             }
         }
 
@@ -929,8 +958,47 @@
                 return { url: '', type: 'Tidak Ditemukan', message: 'Tipe embed tidak didukung.' };
         }
     }
+    
+    // FUNGSI BARU: Merender semua tombol episode untuk serial
+    function renderEpisodeList(movie) {
+        // Hanya untuk non-Movie dengan total episode > 1
+        if (movie.type === 'Movie' || movie.totalEpisodes <= 1) return '';
+
+        let html = '';
+        const totalEpisodes = movie.totalEpisodes;
+        const availableEpisodes = new Set(movie.episodesData.map(e => e.episode)); // Buat Set untuk pencarian cepat
+        
+        // Buat array tombol episode dari 1 sampai totalEpisodes
+        for (let i = 1; i <= totalEpisodes; i++) {
+            const isActive = i === currentEpisode;
+            const isAvailable = availableEpisodes.has(i); // Cek ketersediaan data embed
+            
+            const buttonClass = isActive
+                ? 'bg-red-600 text-white font-bold hover:bg-red-700 ring-2 ring-red-400'
+                : (isAvailable ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-800 text-gray-500 cursor-not-allowed opacity-70');
+
+            // Memastikan penggunaan fungsi yang benar di onclick
+            // Menambahkan LOGGING ke onclick untuk melacak klik tombol yang BISA diklik
+            const onClickAction = isAvailable 
+                ? `console.log('Klik Episode Tersedia: ${i}'); navigateTo('player', ${movie.id}, ${i})` 
+                : `showModal('Episode ${i} belum tersedia.')`;
+                
+            html += `
+                <button onclick="${onClickAction}"
+                        class="${buttonClass} px-3 py-1 text-sm rounded-md transition duration-150 whitespace-nowrap"
+                        data-episode="${i}"
+                        ${!isAvailable ? 'disabled' : ''} <!-- Tambahkan atribut disabled untuk yang tidak tersedia -->
+                        >
+                    Ep ${i}
+                </button>
+            `;
+        }
+        return html;
+    }
+
 
     function renderPlayer() {
+        console.log("Mulai merender halaman Player. ID:", currentMovie?.id, "EP:", currentEpisode); // LOGGING
         const contentDiv = document.getElementById('app-content');
         if (!currentMovie) {
             navigateTo('home');
@@ -941,9 +1009,38 @@
         const embedInfo = getEmbed(currentMovie, currentEpisode);
         
         // Cek Batasan Episode
-        const hasPrev = currentEpisode > 1;
         const totalEps = currentMovie.totalEpisodes || 1;
-        const hasNext = isSeries && totalEps > 1 && currentEpisode < totalEps;
+        
+        // Cek ketersediaan data episode untuk tombol Navigasi
+        const availableEpisodes = isSeries && currentMovie.episodesData ? new Set(currentMovie.episodesData.map(e => e.episode)) : new Set();
+
+        let hasPrev = false;
+        let hasNext = false;
+        let prevEpisode = currentEpisode - 1;
+        let nextEpisode = currentEpisode + 1;
+
+        // Cari episode sebelumnya yang tersedia
+        while (prevEpisode >= 1) {
+            if (availableEpisodes.has(prevEpisode)) {
+                hasPrev = true;
+                break;
+            }
+            prevEpisode--;
+        }
+
+        // Cari episode berikutnya yang tersedia
+        while (nextEpisode <= totalEps) {
+            if (availableEpisodes.has(nextEpisode)) {
+                hasNext = true;
+                break;
+            }
+            nextEpisode++;
+        }
+        
+        // Atur episode yang benar untuk tombol prev/next (episode yang memiliki data)
+        const targetPrevEpisode = hasPrev ? prevEpisode : currentEpisode;
+        const targetNextEpisode = hasNext ? nextEpisode : currentEpisode;
+
 
         // Tentukan link download spesifik untuk film ini
         const downloadLink = currentMovie.downloadLink || '#';
@@ -974,7 +1071,7 @@
         let html = `
             <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-4">
                 <button onclick="navigateTo('home')" class="text-gray-400 hover:text-red-500 mr-2">&larr;</button>
-                ${currentMovie.title} ${isSeries ? `(Episode ${currentEpisode})` : ''}
+                ${currentMovie.title} ${isSeries && totalEps > 1 ? `(Episode ${currentEpisode})` : ''}
             </h1>
             
             <!-- Frame Video dan Lapisan Transparan (Ad Overlay) -->
@@ -982,35 +1079,49 @@
                 ${playerContent}
             </div>
 
-            <!-- Tombol Download dan Navigasi Episode -->
-            <div class="bg-gray-800 p-4 rounded-lg shadow-xl mb-8">
+            <!-- Tombol Download dan Navigasi Episode (Bar Kontrol Utama) -->
+            <div class="bg-gray-800 p-4 rounded-lg shadow-xl mb-4">
                 <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
                     
-                    <!-- !!! PENTING: TOMBOL DOWNLOAD INI MENGGUNAKAN currentMovie.downloadLink !!! -->
+                    <!-- Tombol Download -->
                     <a href="${downloadLink}" target="_blank" 
                        class="w-full md:w-auto px-6 py-3 bg-red-600 text-white font-bold rounded-lg transition duration-150 text-center
-                       ${isDownloadAvailable ? 'hover:bg-red-700' : 'opacity-50 cursor-not-allowed'}">
+                       ${isDownloadAvailable ? 'hover:bg-red-700' : 'opacity-50 cursor-not-allowed'}"
+                       ${!isDownloadAvailable ? 'onclick="showModal(\'Link download belum tersedia.\'); return false;"' : ''}>
                         <svg class="w-5 h-5 inline mr-2 -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        ${isDownloadAvailable ? 'Download Film' : 'Download T/A'}
+                        ${isDownloadAvailable ? 'Download Konten' : 'Download T/A'}
                     </a>
                     
                     ${isSeries && totalEps > 1 ? `
-                    <!-- Navigasi Episode -->
+                    <!-- Navigasi Episode (Next/Prev) -->
                     <div class="flex space-x-3 w-full md:w-auto">
-                        <button onclick="changeEpisode('prev')" ${hasPrev ? '' : 'disabled'} class="flex-1 px-4 py-2 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 disabled:opacity-50 transition duration-150">
-                            Prev
+                        <button onclick="changeEpisode('prev', ${targetPrevEpisode})" ${hasPrev ? '' : 'disabled'} class="flex-1 px-4 py-2 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 disabled:opacity-50 transition duration-150">
+                            &larr; Prev
                         </button>
-                        <span class="px-4 py-2 bg-gray-700 text-white font-bold rounded-lg whitespace-nowrap">
+                        <span class="px-4 py-2 bg-gray-700 text-white font-bold rounded-lg whitespace-nowrap hidden sm:block">
                             Episode ${currentEpisode} / ${totalEps}
                         </span>
-                        <button onclick="changeEpisode('next')" ${hasNext ? '' : 'disabled'} class="flex-1 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-50 transition duration-150">
-                            Next
+                        <button onclick="changeEpisode('next', ${targetNextEpisode})" ${hasNext ? '' : 'disabled'} class="flex-1 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-50 transition duration-150">
+                            Next &rarr;
                         </button>
                     </div>
                     ` : ''}
                 </div>
             </div>
             
+            ${isSeries && totalEps > 1 ? `
+            <!-- Daftar Semua Episode (Series, Donghua, Anime Only) -->
+            <div class="bg-gray-800 p-4 rounded-lg shadow-xl mb-8">
+                <h3 class="text-xl font-bold text-white mb-4">Semua Episode (${totalEps} Total)</h3>
+                
+                <!-- Wrapper untuk Scroll Horizontal/Wrapping Responsive -->
+                <div class="flex flex-wrap gap-2 max-h-48 overflow-y-auto custom-scrollbar">
+                    ${renderEpisodeList(currentMovie)}
+                </div>
+            </div>
+            ` : ''}
+
+
             <!-- Rekomendasi Movie Sesuai Type -->
             <section>
                 <h2 class="text-2xl font-bold text-white mb-4 border-b border-red-600 pb-2">Rekomendasi ${currentMovie.type}</h2>
@@ -1042,8 +1153,10 @@
             overlay.onclick = (e) => {
                 e.preventDefault(); 
                 
+                console.log("Overlay diklik. Memuat video dan membuka iklan."); // LOGGING
+                
                 // 1. Buka tautan GLOBAL_AD_LINK (iklan/direct link play) di tab baru
-                if (adLink) {
+                if (adLink && adLink !== 'https://GANTI_INI_DENGAN_LINK_IKLAN_PLAY_PALSU.com/') {
                     window.open(adLink, '_blank'); 
                 }
                 
@@ -1074,19 +1187,14 @@
         }
     }
 
-    function changeEpisode(direction) {
-        let newEpisode = currentEpisode;
-        if (direction === 'next') {
-            newEpisode++;
-        } else if (direction === 'prev') {
-            newEpisode--;
-        }
-
-        if (newEpisode >= 1 && newEpisode <= currentMovie.totalEpisodes) {
-            currentEpisode = newEpisode;
+    // Fungsi untuk mengubah episode (targetEpisode adalah episode yang memiliki data embed)
+    function changeEpisode(direction, targetEpisode) {
+        console.log("Mengubah episode:", direction, "Target:", targetEpisode); // LOGGING
+        if (targetEpisode !== currentEpisode) {
+            currentEpisode = targetEpisode;
             navigateTo('player', currentMovie.id, currentEpisode);
         } else {
-            showModal(`Episode ${newEpisode} tidak valid atau belum tersedia.`);
+             console.log("Tidak ada perubahan episode atau episode tidak tersedia.");
         }
     }
 
@@ -1094,13 +1202,26 @@
     // --- Setup dan Handler Event ---
     
     function handleHashChange() {
+        console.log("URL Hash berubah, memproses navigasi."); // LOGGING
         const params = getUrlParams();
         
         if (params.view === 'player' && params.id) {
             currentMovie = getMovieById(params.id);
             currentEpisode = params.episode;
+            
             if (currentMovie) {
-                renderPlayer();
+                // Khusus untuk series, pastikan episode yang diminta tersedia datanya
+                const isAvailable = currentMovie.type === 'Movie' || 
+                                    (currentMovie.episodesData && currentMovie.episodesData.some(e => e.episode === currentEpisode));
+                
+                if (isAvailable) {
+                    renderPlayer();
+                } else {
+                    // Jika episode yang diminta tidak tersedia, kembali ke episode 1 atau terbaru
+                    const fallbackEpisode = currentMovie.latestEpisode || 1;
+                    showModal(`Episode ${currentEpisode} tidak tersedia. Memuat episode ${fallbackEpisode}.`);
+                    navigateTo('player', currentMovie.id, fallbackEpisode);
+                }
             } else {
                 navigateTo('home');
             }
@@ -1124,5 +1245,3 @@
 
 </body>
 </html>
-
-
